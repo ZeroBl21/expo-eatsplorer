@@ -3,9 +3,13 @@
   "compilerOptions": {
     "strict": true,
     "paths": {
+    "baseUrl": ".",
       "@/*": [
         "./*"
-      ]
+      ],
+     "@components/*": ["./components/*"],
+      "@screens/*": ["./screens/*"],
+      "@lib/*": ["./lib/*"]
     }
   },
   "include": [
