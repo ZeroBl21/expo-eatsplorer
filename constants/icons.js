@@ -13,6 +13,10 @@ import eye from "../assets/icons/eye.png";
 import play from "../assets/icons/play.png";
 import fingerprint from "../assets/icons/fingerprint.png";
 
+import github from "../assets/icons/github.png";
+import githubDark from "../assets/icons/github-white.png";
+import facebook from "../assets/icons/facebook.png";
+
 export default {
   play,
   bookmark,
@@ -28,4 +32,7 @@ export default {
   eyeHide,
   eye,
   fingerprint,
+  github,
+  githubDark,
+  facebook
 };

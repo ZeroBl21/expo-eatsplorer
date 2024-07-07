@@ -9,7 +9,8 @@
       ],
      "@components/*": ["./components/*"],
       "@screens/*": ["./screens/*"],
-      "@lib/*": ["./lib/*"]
+      "@lib/*": ["./lib/*"],
+      "@/*": ["./*"]
     }
   },
   "include": [

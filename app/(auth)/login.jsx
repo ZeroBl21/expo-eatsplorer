@@ -4,6 +4,8 @@ import { View, ScrollView, Image, SafeAreaView, Text } from 'react-native';
 import { images, icons } from '../../constants';
 import FormField from '@components/FormField';
 import Button from '@components/Button';
+import LoginButton from '@components/LoginButton';
+import { useAuth } from '../../context/auth-context';
 
 export default function Login() {
   const [form, setForm] = useState({
@@ -11,6 +13,8 @@ export default function Login() {
     password: '',
   })
   const [isSubmitting, setIsSumitting] = useState(false)
+  const { authToken, handleLogin, handleLogout, request } = useAuth();
+  console.log(authToken)
 
   function submit() { }
 
@@ -19,13 +23,26 @@ export default function Login() {
       <ScrollView>
         <View className="w-full justify-center min-h-[95vh] px-6 ">
           <Image className="w-[250px] h-[250px] mt-8 self-center ml-[25%]" source={images.logo} resizeMode="contain" />
-          <Text className="text-4xl font-medium text-brand font-psemibold text-center">Login</Text>
+          <Text className="text-4xl font-medium text-brand font-psemibold text-center my-2">Login</Text>
+          <View className="p-2 flex flex-row justify-evenly items-center">
+            {authToken ? (
+              <>
+                <Text>Access Token: {authToken}</Text>
+                <Button title="Logout" handlePress={handleLogout} />
+              </>
+            ) : (
+              <>
+                <LoginButton title="Login with GitHub" icon={icons.github} isLoading={!request} handlePress={() => handleLogin()} />
+                <LoginButton title="Login with Facebook" icon={icons.facebook} isLoading={!request} handlePress={() => handleLogin()} />
+              </>
+            )}
+          </View>
           <FormField
             title="Email"
             placeholder="example@mail.com"
             value={form.email}
             handleChangeText={(e) => setForm({ ...form, email: e })}
-            otherStyles="mt-7"
+            otherStyles="mt-2"
             keyboardType="email-address"
           />
 
