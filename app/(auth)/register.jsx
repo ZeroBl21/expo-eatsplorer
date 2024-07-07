@@ -25,7 +25,7 @@ export default function Register() {
 
           <FormField
             title="Username"
-            placeholder="example@mail.com"
+            placeholder="JohnDoe"
             value={form.username}
             handleChangeText={(e) => setForm({ ...form, email: e })}
             otherStyles="mt-4"
@@ -62,6 +62,7 @@ export default function Register() {
             containerStyles="mt-6"
             isLoading={isSubmitting}
           />
+
           <View className="flex justify-center pt-5 flex-row gap-2">
             <Text className="text-lg text-offblack font-pregular">
               Have an account already?

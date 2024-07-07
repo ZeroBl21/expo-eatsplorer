@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from "expo-router";
 import { View, ScrollView, Image, SafeAreaView, Text } from 'react-native';
-import { images } from '../../constants';
+import { images, icons } from '../../constants';
 import FormField from '@components/FormField';
 import Button from '@components/Button';
 
@@ -37,12 +37,16 @@ export default function Login() {
             otherStyles="mt-7"
           />
 
-          <Button
-            title="Log In"
-            handlePress={submit}
-            containerStyles="mt-7"
-            isLoading={isSubmitting}
-          />
+          <View className="flex justify-center pt-5 flex-row gap-2 align-center mt-7 mx-2">
+            <Button
+              title="Log In"
+              handlePress={submit}
+              containerStyles="flex-1 self-center"
+              isLoading={isSubmitting}
+            />
+            <Image className="flex-2 w-12 h-12 self-center" source={icons.fingerprint} resizeMode="contain" />
+          </View>
+
           <View className="flex justify-center pt-5 flex-row gap-2">
             <Text className="text-lg text-offblack font-pregular">
               Don't have an account?
@@ -59,4 +63,3 @@ export default function Login() {
     </SafeAreaView>
   );
 }
-
