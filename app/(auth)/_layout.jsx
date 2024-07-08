@@ -1,7 +1,12 @@
-import { Stack } from "expo-router";
+import { Redirect, Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
+import { useAuth } from "../../context/auth-context";
 
 const AuthLayout = () => {
+  const { authToken, isNewUser } = useAuth();
+
+  if (isNewUser) return <Redirect href="/register" />;
+  if (authToken) return <Redirect href="/home" />;
 
   return (
     <>

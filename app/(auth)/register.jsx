@@ -1,20 +1,62 @@
 import React, { useState } from 'react';
-import { Link } from "expo-router";
+import { Link, router } from "expo-router";
 import { View, ScrollView, Image, SafeAreaView, Text } from 'react-native';
 import { images } from '../../constants';
 import FormField from '@components/FormField';
 import Button from '@components/Button';
+import { useAuth } from '../../context/auth-context';
+import api from '../../api/db';
+
+const initialState = {
+  username: '',
+  email: '',
+  password: '',
+  passwordConfirm: '',
+}
 
 export default function Register() {
-  const [form, setForm] = useState({
-    username: '',
-    email: '',
-    password: '',
-    passwordConfirm: '',
+  const { user, setUser, setToken } = useAuth()
+  const [form, setForm] = useState(() => {
+    if (user) {
+      return {
+        username: user.login,
+        email: user.email,
+        password: '',
+        passwordConfirm: '',
+      }
+    }
+
+    return initialState
   })
+
   const [isSubmitting, setIsSumitting] = useState(false)
 
-  function submit() { }
+  async function submit() {
+    if (form.username === "" || form.email === "" || form.password === "" || form.passwordConfirm === "") {
+      Alert.alert("Error", "Please fill in all fields");
+    }
+
+    if(form.password === form.passwordConfirm) {
+      Alert.alert("Error", "Password and Confirm Password are not the same");
+    }
+
+    setIsSumitting(true);
+    try {
+      const result = await api.users.register({
+        username: form.username,
+        email: form.email,
+        password: form.password
+      });
+      setUser(result.user);
+      setToken(result.token);
+
+      router.replace("/home");
+    } catch (error) {
+      Alert.alert("Error", error.message);
+    } finally {
+      setIsSumitting(false);
+    }
+  }
 
   return (
     <SafeAreaView className="bg-primary h-full">
