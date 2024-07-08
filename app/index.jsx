@@ -1,17 +1,22 @@
 // app/(tabs)/index.jsx
 import React from 'react';
 import { View, Text, Image } from 'react-native';
+
+import { router, Redirect } from "expo-router";
 import { images } from '../constants';
 import { StatusBar } from 'expo-status-bar';
 import { styled } from 'nativewind';
 import Button from '@components/Button';
-import { useRouter } from 'expo-router';
+import { useAuth } from '../context/auth-context';
 
 const StyledView = styled(View);
 const StyledText = styled(Text);
 
 export default function SplashScreen() {
-  const router = useRouter();
+  const { authToken, isNewUser } = useAuth();
+
+  if (isNewUser) return <Redirect href="/register" />;
+  if (authToken) return <Redirect href="/home" />;
 
   return (
     <StyledView className="flex-1 justify-center items-center bg-[#FADDAF]">
@@ -20,7 +25,7 @@ export default function SplashScreen() {
       <StyledText className="text-xl mb-6">De tu despensa a tu mesa</StyledText>
       <Button
         title="Empezar"
-        handlePress={() => router.push('(auth)/login')}
+        handlePress={() => router.replace('(auth)/login')}
         containerStyles="bg-[#f5a623] py-3 px-6 rounded-lg"
       />
       <StatusBar style="auto" />

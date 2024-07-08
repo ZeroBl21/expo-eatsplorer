@@ -9,9 +9,9 @@ import { useAuth } from '../../context/auth-context';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
-  const { authToken } = useAuth();
+  const { authToken, request } = useAuth();
 
-  if (!authToken) return <Redirect href="/login" />;
+  if (!authToken && request) return <Redirect href="/login" />;
 
   return (
     <>

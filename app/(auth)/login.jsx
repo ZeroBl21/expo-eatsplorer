@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { Link } from "expo-router";
-import { View, ScrollView, Image, SafeAreaView, Text } from 'react-native';
+import { Link, router } from "expo-router";
+import { View, ScrollView, Image, SafeAreaView, Text, Alert } from 'react-native';
 import { images, icons } from '../../constants';
 import FormField from '@components/FormField';
 import Button from '@components/Button';
 import LoginButton from '@components/LoginButton';
 import { useAuth } from '../../context/auth-context';
+import api from '../../api/db';
 
 export default function Login() {
   const [form, setForm] = useState({
@@ -13,10 +14,38 @@ export default function Login() {
     password: '',
   })
   const [isSubmitting, setIsSumitting] = useState(false)
-  const { authToken, handleLogin, handleLogout, request } = useAuth();
+  const { authToken, setAuthToken, setUser, handleLogin, handleLogout, request } = useAuth();
   console.log(authToken)
 
-  function submit() { }
+  async function submit() {
+    if (form.email === "" || form.password === "") {
+      Alert.alert("Error", "Please fill in all fields");
+      return
+    }
+
+    setIsSumitting(true);
+    try {
+      const result = await api.users.login({
+        email: form.email,
+      }, form.password);
+      console.log("result", result)
+      if (!result.isSuccess) {
+        Alert.alert("Error", "Invalid Credentials");
+        return
+      }
+      setUser({
+        user: result?.usuario,
+        email: result?.correo,
+      });
+      setAuthToken(result.token);
+
+      router.replace("/home");
+    } catch (error) {
+      Alert.alert("Error", error.message);
+    } finally {
+      setIsSumitting(false);
+    }
+  }
 
   return (
     <SafeAreaView className="bg-primary h-full">
@@ -49,7 +78,7 @@ export default function Login() {
           <FormField
             title="Password"
             placeholder="Enter your password..."
-            value={form.email}
+            value={form.password}
             handleChangeText={(e) => setForm({ ...form, password: e })}
             otherStyles="mt-7"
           />

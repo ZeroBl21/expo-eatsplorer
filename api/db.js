@@ -9,7 +9,7 @@ const api = {
   users: {
     async login(user, password) {
       try {
-        const response = await fetch(BACKEND + '/api/acceso/login', {
+        const response = await fetch(BACKEND + '/api/Acceso/Login', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -24,16 +24,19 @@ const api = {
         const result = await response.json();
         if (response.ok) {
           console.log('User login:', result);
+          return result
         } else {
           console.error('Login failed:', result);
+          return { isSuccess: false }
         }
       } catch (error) {
         console.error('Error logging user:', error);
+        return { isSuccess: false }
       }
     },
     async register(user) {
       try {
-        const response = await fetch(BACKEND + '/api/acceso/register', {
+        const response = await fetch(BACKEND + '/api/Acceso/Register', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -49,11 +52,14 @@ const api = {
         const result = await response.json();
         if (response.ok) {
           console.log('User registered:', result);
+          return result
         } else {
           console.error('Registration failed:', result);
+          return { isSuccess: false }
         }
       } catch (error) {
         console.error('Error registering user:', error);
+        return { isSuccess: false }
       }
     },
     async authenticate(code) {
@@ -88,29 +94,28 @@ const api = {
           });
 
           const emailsData = await emailsResponse.json();
-          console.log(emailsData)
           const primaryEmail = emailsData?.find(email => email.primary && email.verified);
           if (primaryEmail) {
             userData.email = primaryEmail.email;
           }
         }
-        console.log(userData)
-        const userExists = await api.users.exists(userData)
+        // console.log(userData)
+        // const userExists = await api.users.exists(userData)
 
-        return { user: userData, token: tokenData.access_token, exists: userExists.exists, token: userExists.token }
+        return { user: userData, token: tokenData.access_token }
       } catch (error) {
         console.error('Error during authentication:', error);
       }
     },
     async exists(user) {
       try {
-        const response = await fetch(BACKEND + '/api/acceso/check-user', {
+        const response = await fetch(BACKEND + '/api/Acceso/loginDirecto', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            email: user.email,
+            correo: user.email,
           }),
         });
 
@@ -119,9 +124,12 @@ const api = {
           return data;
         } else {
           console.error('Check user failed:', data);
+          return data
         }
       } catch (error) {
         console.error('Error checking user:', error);
+
+        return { isSuccess: false }
       }
     }
   }

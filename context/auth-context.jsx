@@ -28,13 +28,14 @@ export const AuthProvider = ({ children }) => {
     discovery
   );
 
+
   useEffect(() => {
     if (response?.type === 'success') {
       const { code } = response.params;
       api.users.authenticate(code).then(data => {
-        setUser(data.user)
-        setIsNewUser(!data.exists)
-        setAuthToken(data.token && data.exists ? data.token : null)
+        if (!data?.user) return
+        setUser({ email: data.user.email, user: data.user.login })
+        setAuthToken(data?.token ? data.token : null)
       })
     }
   }, [response]);

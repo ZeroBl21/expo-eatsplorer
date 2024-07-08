@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, router } from "expo-router";
-import { View, ScrollView, Image, SafeAreaView, Text } from 'react-native';
+import { View, ScrollView, Image, SafeAreaView, Text, Alert } from 'react-native';
 import { images } from '../../constants';
 import FormField from '@components/FormField';
 import Button from '@components/Button';
@@ -15,7 +15,7 @@ const initialState = {
 }
 
 export default function Register() {
-  const { user, setUser, setToken } = useAuth()
+  const { user, setUser, setAuthToken } = useAuth()
   const [form, setForm] = useState(() => {
     if (user) {
       return {
@@ -34,10 +34,13 @@ export default function Register() {
   async function submit() {
     if (form.username === "" || form.email === "" || form.password === "" || form.passwordConfirm === "") {
       Alert.alert("Error", "Please fill in all fields");
+      return
     }
 
-    if(form.password === form.passwordConfirm) {
+    console.log(form.password, form.passwordConfirm, form.password === form.passwordConfirm)
+    if (form.password !== form.passwordConfirm) {
       Alert.alert("Error", "Password and Confirm Password are not the same");
+      return
     }
 
     setIsSumitting(true);
@@ -47,8 +50,16 @@ export default function Register() {
         email: form.email,
         password: form.password
       });
-      setUser(result.user);
-      setToken(result.token);
+      console.log(result)
+      if (!result.isSuccess) {
+        Alert.alert("Error", "Cannot register");
+        return
+      }
+      setUser({
+        user: result?.user,
+        email: form?.email,
+      });
+      setAuthToken(result.token);
 
       router.replace("/home");
     } catch (error) {
@@ -69,7 +80,7 @@ export default function Register() {
             title="Username"
             placeholder="JohnDoe"
             value={form.username}
-            handleChangeText={(e) => setForm({ ...form, email: e })}
+            handleChangeText={(e) => setForm({ ...form, username: e })}
             otherStyles="mt-4"
           />
 
@@ -94,7 +105,7 @@ export default function Register() {
             title="Password"
             placeholder="Confirm your password..."
             value={form.passwordConfirm}
-            handleChangeText={(e) => setForm({ ...form, password: e })}
+            handleChangeText={(e) => setForm({ ...form, passwordConfirm: e })}
             otherStyles="mt-2"
           />
 
