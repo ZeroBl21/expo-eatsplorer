@@ -78,6 +78,7 @@ export default function Login() {
           <FormField
             title="Password"
             placeholder="Enter your password..."
+            type="password"
             value={form.password}
             handleChangeText={(e) => setForm({ ...form, password: e })}
             otherStyles="mt-7"

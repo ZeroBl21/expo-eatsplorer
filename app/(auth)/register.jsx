@@ -1,71 +1,48 @@
 import React, { useState } from 'react';
 import { Link, router } from "expo-router";
 import { View, ScrollView, Image, SafeAreaView, Text, Alert } from 'react-native';
+import { useForm, Controller } from 'react-hook-form';
+
 import { images } from '../../constants';
 import FormField from '@components/FormField';
 import Button from '@components/Button';
 import { useAuth } from '../../context/auth-context';
 import api from '../../api/db';
 
-const initialState = {
-  username: '',
-  email: '',
-  password: '',
-  passwordConfirm: '',
-}
-
 export default function Register() {
-  const { user, setUser, setAuthToken } = useAuth()
-  const [form, setForm] = useState(() => {
-    if (user) {
-      return {
-        username: user.login,
-        email: user.email,
-        password: '',
-        passwordConfirm: '',
-      }
+  const { user, setUser, setAuthToken } = useAuth();
+  const { control, handleSubmit, formState: { errors }, setError } = useForm({
+    defaultValues: {
+      username: user?.user || '',
+      email: user?.email || '',
+      password: '',
+      passwordConfirm: ''
+    }
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  async function submit(data) {
+    const { username, email, password, passwordConfirm } = data;
+
+    if (password !== passwordConfirm) {
+      setError('passwordConfirm', { type: 'manual', message: 'Password and Confirm Password are not the same' });
+      return;
     }
 
-    return initialState
-  })
-
-  const [isSubmitting, setIsSumitting] = useState(false)
-
-  async function submit() {
-    if (form.username === "" || form.email === "" || form.password === "" || form.passwordConfirm === "") {
-      Alert.alert("Error", "Please fill in all fields");
-      return
-    }
-
-    console.log(form.password, form.passwordConfirm, form.password === form.passwordConfirm)
-    if (form.password !== form.passwordConfirm) {
-      Alert.alert("Error", "Password and Confirm Password are not the same");
-      return
-    }
-
-    setIsSumitting(true);
+    setIsSubmitting(true);
     try {
-      const result = await api.users.register({
-        username: form.username,
-        email: form.email,
-        password: form.password
-      });
-      console.log(result)
+      const result = await api.users.register({ username, email, password });
       if (!result.isSuccess) {
         Alert.alert("Error", "Cannot register");
-        return
+        return;
       }
-      setUser({
-        user: result?.user,
-        email: form?.email,
-      });
+      setUser({ user: result?.user, email });
       setAuthToken(result.token);
-
       router.replace("/home");
     } catch (error) {
       Alert.alert("Error", error.message);
     } finally {
-      setIsSumitting(false);
+      setIsSubmitting(false);
     }
   }
 
@@ -76,42 +53,82 @@ export default function Register() {
           <Image className="w-[250px] h-[250px] mt-8 self-center ml-[25%]" source={images.logo} resizeMode="contain" />
           <Text className="text-4xl font-medium text-brand font-psemibold text-center">Register</Text>
 
-          <FormField
-            title="Username"
-            placeholder="JohnDoe"
-            value={form.username}
-            handleChangeText={(e) => setForm({ ...form, username: e })}
-            otherStyles="mt-4"
+          <Controller
+            control={control}
+            name="username"
+            rules={{ required: 'Username is required' }}
+            render={({ field: { onChange, value } }) => (
+              <FormField
+                title="Username"
+                placeholder="JohnDoe"
+                value={value}
+                handleChangeText={onChange}
+                otherStyles="mt-4"
+                error={errors.username}
+              />
+            )}
           />
 
-          <FormField
-            title="Email"
-            placeholder="example@mail.com"
-            value={form.email}
-            handleChangeText={(e) => setForm({ ...form, email: e })}
-            otherStyles="mt-2"
-            keyboardType="email-address"
+          <Controller
+            control={control}
+            name="email"
+            rules={{
+              required: 'Email is required',
+              pattern: { value: /^\S+@\S+$/i, message: 'Invalid email address' }
+            }}
+            render={({ field: { onChange, value } }) => (
+              <FormField
+                title="Email"
+                placeholder="example@mail.com"
+                value={value}
+                handleChangeText={onChange}
+                otherStyles="mt-2"
+                keyboardType="email-address"
+                error={errors.email}
+              />
+            )}
           />
 
-          <FormField
-            title="Password"
-            placeholder="Enter your password..."
-            value={form.password}
-            handleChangeText={(e) => setForm({ ...form, password: e })}
-            otherStyles="mt-2"
+          <Controller
+            control={control}
+            name="password"
+            rules={{
+              required: 'Password is required',
+              minLength: { value: 8, message: 'Password must be at least 8 characters long' }
+            }}
+            render={({ field: { onChange, value } }) => (
+              <FormField
+                title="Password"
+                placeholder="Enter your password..."
+                type="password"
+                value={value}
+                handleChangeText={onChange}
+                otherStyles="mt-2"
+                error={errors.password}
+              />
+            )}
           />
 
-          <FormField
-            title="Password"
-            placeholder="Confirm your password..."
-            value={form.passwordConfirm}
-            handleChangeText={(e) => setForm({ ...form, passwordConfirm: e })}
-            otherStyles="mt-2"
+          <Controller
+            control={control}
+            name="passwordConfirm"
+            rules={{ required: 'Please confirm your password' }}
+            render={({ field: { onChange, value } }) => (
+              <FormField
+                title="Password Confirm"
+                placeholder="Confirm your password..."
+                type="password"
+                value={value}
+                handleChangeText={onChange}
+                otherStyles="mt-2"
+                error={errors.passwordConfirm}
+              />
+            )}
           />
 
           <Button
             title="Register"
-            handlePress={submit}
+            handlePress={handleSubmit(submit)}
             containerStyles="mt-6"
             isLoading={isSubmitting}
           />
@@ -132,4 +149,3 @@ export default function Register() {
     </SafeAreaView>
   );
 }
-
