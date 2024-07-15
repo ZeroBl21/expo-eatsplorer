@@ -13,10 +13,9 @@ const StyledView = styled(View);
 const StyledText = styled(Text);
 
 export default function SplashScreen() {
-  const { authToken, isNewUser } = useAuth();
+  const { authState } = useAuth();
 
-  if (isNewUser) return <Redirect href="/register" />;
-  if (authToken) return <Redirect href="/home" />;
+  if (authState?.token) return <Redirect href="/home" />;
 
   return (
     <StyledView className="flex-1 justify-center items-center bg-[#FADDAF]">
