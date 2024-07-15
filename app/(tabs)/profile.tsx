@@ -46,7 +46,7 @@ export default function Profile() {
             containerStyles="border-0"
           />
         </View>
-        <View className="bg-offwhite h-full p-4 space-y-2">
+        <View className="bg-offwhite h-full p-4 py-6 space-y-2">
           <Text className="font-bold">Detalles:</Text>
           <Text className="">☺ Me gustan las bananas</Text>
           <Text className="">😥 No consumo frutos secos</Text>
