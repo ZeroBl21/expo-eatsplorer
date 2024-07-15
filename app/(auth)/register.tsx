@@ -133,7 +133,8 @@ export default function Register() {
           <Button
             title="Register"
             handlePress={handleSubmit(submit)}
-            containerStyles="mt-6"
+            containerStyles="mt-6 min-h-[62px]"
+            textStyles="text-lg"
             isLoading={isSubmitting}
           />
 

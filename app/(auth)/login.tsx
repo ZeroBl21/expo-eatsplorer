@@ -70,7 +70,8 @@ export default function Login() {
             <Button
               title="Log In"
               handlePress={submit}
-              containerStyles="flex-1 self-center"
+              containerStyles="flex-1 self-center min-h-[62px]"
+              textStyles="text-lg"
               isLoading={isSubmitting}
             />
             <Image className="flex-2 w-12 h-12 self-center" source={icons.fingerprint} resizeMode="contain" />
