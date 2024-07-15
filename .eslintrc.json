@@ -2,13 +2,14 @@
   "env": {
     "browser": true,
     "es2021": true,
-    "node": true
+    "node": true,
+    "react-native/react-native": true
   },
   "extends": [
     "eslint:recommended",
     "plugin:react/recommended",
     "plugin:react-native/all",
-    "airbnb"
+    "standard"
   ],
   "parserOptions": {
     "ecmaFeatures": {
@@ -23,5 +24,7 @@
   ],
   "rules": {
     // Agrega cualquier regla personalizada que necesites
+    "react/react-in-jsx-scope": "off",
+    "@typescript-eslint/no-explicit-any": "off",
   }
 }

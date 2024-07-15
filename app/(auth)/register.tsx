@@ -7,39 +7,41 @@ import { images } from '../../constants';
 import FormField from '@components/FormField';
 import Button from '@components/Button';
 import { useAuth } from '../../context/auth-context';
-import api from '../../api/db';
 
 export default function Register() {
-  const { user, setUser, setAuthToken } = useAuth();
+  const { handleRegister } = useAuth();
   const { control, handleSubmit, formState: { errors }, setError } = useForm({
     defaultValues: {
-      username: user?.user || '',
-      email: user?.email || '',
+      username: '',
+      email: '',
       password: '',
       passwordConfirm: ''
     }
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  async function submit(data) {
+  async function submit(data: any) {
     const { username, email, password, passwordConfirm } = data;
 
     if (password !== passwordConfirm) {
-      setError('passwordConfirm', { type: 'manual', message: 'Password and Confirm Password are not the same' });
+      setError('passwordConfirm', {
+        type: 'manual',
+        message: 'Password and Confirm Password are not the same'
+      });
+
       return;
     }
 
     setIsSubmitting(true);
     try {
-      const result = await api.users.register({ username, email, password });
-      if (!result.isSuccess) {
+      const isSuccess = await handleRegister!(username, email, password)
+      if (!isSuccess) {
         Alert.alert("Error", "Cannot register");
-        return;
+        return
       }
-      setUser({ user: result?.user, email });
-      setAuthToken(result.token);
-      router.replace("/home");
-    } catch (error) {
+
+      router.replace("/(tabs)/home");
+    } catch (error: any) {
       Alert.alert("Error", error.message);
     } finally {
       setIsSubmitting(false);
@@ -60,6 +62,7 @@ export default function Register() {
             render={({ field: { onChange, value } }) => (
               <FormField
                 title="Username"
+                type="text"
                 placeholder="JohnDoe"
                 value={value}
                 handleChangeText={onChange}
@@ -79,6 +82,7 @@ export default function Register() {
             render={({ field: { onChange, value } }) => (
               <FormField
                 title="Email"
+                type="email"
                 placeholder="example@mail.com"
                 value={value}
                 handleChangeText={onChange}

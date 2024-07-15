@@ -14,8 +14,7 @@ export default function Login() {
     password: '',
   })
   const [isSubmitting, setIsSumitting] = useState(false)
-  const { authToken, setAuthToken, setUser, handleLogin, handleLogout, request } = useAuth();
-  console.log(authToken)
+  const { promptOauth, handleLogin, request } = useAuth();
 
   async function submit() {
     if (form.email === "" || form.password === "") {
@@ -25,22 +24,14 @@ export default function Login() {
 
     setIsSumitting(true);
     try {
-      const result = await api.users.login({
-        email: form.email,
-      }, form.password);
-      console.log("result", result)
-      if (!result.isSuccess) {
+      const isSuccess = await handleLogin!(form.email, form.password)
+      if (!isSuccess) {
         Alert.alert("Error", "Invalid Credentials");
         return
       }
-      setUser({
-        user: result?.usuario,
-        email: result?.correo,
-      });
-      setAuthToken(result.token);
 
       router.replace("/home");
-    } catch (error) {
+    } catch (error: any) {
       Alert.alert("Error", error.message);
     } finally {
       setIsSumitting(false);
@@ -54,17 +45,8 @@ export default function Login() {
           <Image className="w-[250px] h-[250px] mt-8 self-center ml-[25%]" source={images.logo} resizeMode="contain" />
           <Text className="text-4xl font-medium text-brand font-psemibold text-center my-2">Login</Text>
           <View className="p-2 flex flex-row justify-evenly items-center">
-            {authToken ? (
-              <>
-                <Text>Access Token: {authToken}</Text>
-                <Button title="Logout" handlePress={handleLogout} />
-              </>
-            ) : (
-              <>
-                <LoginButton title="Login with GitHub" icon={icons.github} isLoading={!request} handlePress={() => handleLogin()} />
-                <LoginButton title="Login with Facebook" icon={icons.facebook} isLoading={!request} handlePress={() => handleLogin()} />
-              </>
-            )}
+            <LoginButton title="Login with GitHub" icon={icons.github} isLoading={!request} handlePress={() => promptOauth()} />
+            <LoginButton title="Login with Facebook" icon={icons.facebook} isLoading={!request} handlePress={() => promptOauth()} />
           </View>
           <FormField
             title="Email"

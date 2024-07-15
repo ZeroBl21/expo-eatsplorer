@@ -3,10 +3,9 @@ import { StatusBar } from "expo-status-bar";
 import { useAuth } from "../../context/auth-context";
 
 const AuthLayout = () => {
-  const { authToken, isNewUser } = useAuth();
+  const { authState } = useAuth();
 
-  if (isNewUser) return <Redirect href="/register" />;
-  if (authToken) return <Redirect href="/home" />;
+  if (authState?.authenticated) return <Redirect href="/(tabs)/home" />;
 
   return (
     <>
