@@ -1,8 +1,10 @@
 import React from 'react';
+import { router } from "expo-router";
 import { View, Text, SafeAreaView, ScrollView, Image, ImageBackground } from 'react-native';
 
 import { icons, images } from '../../constants';
 import Button from '@/components/Button';
+
 
 export default function Profile() {
   return (
@@ -23,6 +25,7 @@ export default function Profile() {
               title="Subir Receta"
               icon={icons.plus2}
               containerStyles="border-0 py-1"
+              handlePress={() => router.replace("/upload-recipe")}
             />
             <Button
               title="Editar Perfil"
