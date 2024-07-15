@@ -32,10 +32,16 @@ export default function TabLayout() {
         <Tabs.Screen
           name="profile"
           options={{
-            title: 'profile',
+            title: 'Profile',
             tabBarIcon: ({ color, focused }) => (
               <TabBarIcon name={focused ? 'person' : 'person-outline'} color={color} />
             ),
+          }}
+        />
+        <Tabs.Screen
+          name="upload-recipe"
+          options={{
+            href: null,
           }}
         />
       </Tabs>
