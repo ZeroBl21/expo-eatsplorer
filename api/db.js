@@ -132,6 +132,42 @@ const api = {
         return { isSuccess: false }
       }
     }
+  },
+  recipes: {
+    async upload(recipe) {
+      try {
+        const response = await fetch(BACKEND + '/api/Recetas/Crear', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            titulo: recipe.title,
+            descripcion: recipe.description,
+            instrucciones: recipe.instructions,
+            foto_receta: recipe.photo,
+            usuario_id: recipe.userId,
+            fecha_creacion: new Date().toISOString(),
+            recetas_Ingredientes: recipe.ingredients.map(ingredient => ({
+              id_ingrediente: ingredient.id,
+              ingrediente: ingredient.name,
+            })),
+          }),
+        });
+
+        const result = await response.json();
+        if (response.ok) {
+          console.log('Recipe uploaded:', result);
+          return { isSuccess: true, data: result };
+        } else {
+          console.error('Upload recipe failed:', result);
+          return { isSuccess: false };
+        }
+      } catch (error) {
+        console.error('Error uploading recipe:', error);
+        return { isSuccess: false };
+      }
+    },
   }
 }
 
