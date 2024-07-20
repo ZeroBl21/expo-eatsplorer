@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, router } from "expo-router";
-import { View, ScrollView, Image, SafeAreaView, Text, Alert } from 'react-native';
+import { View, ScrollView, Image, SafeAreaView, Text, Alert, TouchableOpacity } from 'react-native';
+import * as LocalAuthentication from 'expo-local-authentication';
 import { images, icons } from '../../constants';
 import FormField from '@components/FormField';
 import Button from '@components/Button';
@@ -12,29 +13,75 @@ export default function Login() {
   const [form, setForm] = useState({
     email: '',
     password: '',
-  })
-  const [isSubmitting, setIsSumitting] = useState(false)
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { promptOauth, handleLogin, request } = useAuth();
+
+  useEffect(() => {
+    checkForBiometrics();
+  }, []);
+
+  async function checkForBiometrics() {
+    const compatible = await LocalAuthentication.hasHardwareAsync();
+    if (!compatible) {
+      Alert.alert('Error', 'Este dispositivo no soporta la autenticación biométrica');
+    }
+  }
+
+  async function handleBiometricAuth() {
+    const savedBiometrics = await LocalAuthentication.isEnrolledAsync();
+    if (!savedBiometrics) {
+      return Alert.alert('Error', 'No hay biometría guardada en este dispositivo');
+    }
+
+    const { success } = await LocalAuthentication.authenticateAsync();
+    if (success) {
+      // Aquí puedes manejar el login automáticamente si la autenticación biométrica es exitosa
+      handleBiometricLogin();
+    } else {
+      Alert.alert('Error', 'Autenticación biométrica fallida');
+    }
+  }
+
+  async function handleBiometricLogin() {
+    setIsSubmitting(true);
+    try {
+      // Reemplaza estas credenciales de ejemplo por las reales guardadas en el dispositivo
+      const email = 'example@mail.com';
+      const password = 'password123';
+      const isSuccess = await handleLogin!(email, password);
+      if (!isSuccess) {
+        Alert.alert('Error', 'Credenciales inválidas');
+        return;
+      }
+
+      router.replace("/home");
+    } catch (error) {
+      Alert.alert('Error', error.message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
 
   async function submit() {
     if (form.email === "" || form.password === "") {
       Alert.alert("Error", "Please fill in all fields");
-      return
+      return;
     }
 
-    setIsSumitting(true);
+    setIsSubmitting(true);
     try {
-      const isSuccess = await handleLogin!(form.email, form.password)
+      const isSuccess = await handleLogin!(form.email, form.password);
       if (!isSuccess) {
         Alert.alert("Error", "Invalid Credentials");
-        return
+        return;
       }
 
       router.replace("/home");
-    } catch (error: any) {
+    } catch (error) {
       Alert.alert("Error", error.message);
     } finally {
-      setIsSumitting(false);
+      setIsSubmitting(false);
     }
   }
 
@@ -74,7 +121,9 @@ export default function Login() {
               textStyles="text-lg"
               isLoading={isSubmitting}
             />
-            <Image className="flex-2 w-12 h-12 self-center" source={icons.fingerprint} resizeMode="contain" />
+            <TouchableOpacity onPress={handleBiometricAuth} className="ml-2">
+              <Image source={icons.fingerprint} style={{ width: 48, height: 48 }} resizeMode="contain" />
+            </TouchableOpacity>
           </View>
 
           <View className="flex justify-center pt-5 flex-row gap-2">
