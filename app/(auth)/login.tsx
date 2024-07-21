@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, router } from "expo-router";
 import { View, ScrollView, Image, SafeAreaView, Text, Alert, TouchableOpacity } from 'react-native';
 import * as LocalAuthentication from 'expo-local-authentication';
+import * as SecureStore from 'expo-secure-store';
 import { images, icons } from '../../constants';
 import FormField from '@components/FormField';
 import Button from '@components/Button';
@@ -36,19 +37,23 @@ export default function Login() {
 
     const { success } = await LocalAuthentication.authenticateAsync();
     if (success) {
-      // Aquí puedes manejar el login automáticamente si la autenticación biométrica es exitosa
-      handleBiometricLogin();
+      const storedEmail = await SecureStore.getItemAsync('email');
+      const storedPassword = await SecureStore.getItemAsync('password');
+
+      if (storedEmail && storedPassword) {
+        setForm({ email: storedEmail, password: storedPassword });
+        handleBiometricLogin(storedEmail, storedPassword);
+      } else {
+        Alert.alert('Error', 'No hay credenciales guardadas para usar la autenticación biométrica');
+      }
     } else {
       Alert.alert('Error', 'Autenticación biométrica fallida');
     }
   }
 
-  async function handleBiometricLogin() {
+  async function handleBiometricLogin(email, password) {
     setIsSubmitting(true);
     try {
-      // Reemplaza estas credenciales de ejemplo por las reales guardadas en el dispositivo
-      const email = 'example@mail.com';
-      const password = 'password123';
       const isSuccess = await handleLogin!(email, password);
       if (!isSuccess) {
         Alert.alert('Error', 'Credenciales inválidas');
@@ -76,6 +81,10 @@ export default function Login() {
         Alert.alert("Error", "Invalid Credentials");
         return;
       }
+
+      // Save credentials securely
+      await SecureStore.setItemAsync('email', form.email);
+      await SecureStore.setItemAsync('password', form.password);
 
       router.replace("/home");
     } catch (error) {

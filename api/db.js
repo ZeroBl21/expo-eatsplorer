@@ -9,7 +9,7 @@ const api = {
   users: {
     async login(user, password) {
       try {
-        const response = await fetch(BACKEND + '/api/Acceso/Login', {
+        const response = await fetch(BACKEND + '/api/Acceso/login', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
