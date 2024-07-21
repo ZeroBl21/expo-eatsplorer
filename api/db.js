@@ -134,7 +134,7 @@ const api = {
     }
   },
   recipes: {
-    async upload(recipe) {
+    async uploadRecipe(recipe) {
       try {
         const response = await fetch(BACKEND + '/api/Recetas/Crear', {
           method: 'POST',
@@ -171,4 +171,4 @@ const api = {
   }
 }
 
-export default api
+export default api;

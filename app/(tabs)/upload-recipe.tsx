@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Image, ScrollView, Alert } from 'react-native';
 import { styled } from 'nativewind';
 import * as ImagePicker from 'expo-image-picker';
-import { icons, images } from '../../constants';
-import api from '@/api/db';
+import api from '../../api/db'; // Ajusta la ruta según tu estructura de proyecto
+import { icons, images } from '../../constants'; // Asegúrate de que los iconos y las imágenes estén correctamente importados
 
 const StyledView = styled(View);
 const StyledText = styled(Text);
@@ -29,7 +29,7 @@ export default function UploadRecipe({ userId }) {
     });
 
     if (!result.canceled) {
-      setPhoto(result.uri);
+      setPhoto(result.assets[0].uri);
     }
   };
 
@@ -50,7 +50,7 @@ export default function UploadRecipe({ userId }) {
       ingredients: ingredients.map((ingredient, index) => ({ id: index + 1, name: ingredient })),
     };
 
-    const response = await api.recipes.upload(recipe);
+    const response = await api.recipes.uploadRecipe(recipe);
 
     if (response.isSuccess) {
       Alert.alert('Éxito', 'Receta subida exitosamente');
@@ -68,29 +68,33 @@ export default function UploadRecipe({ userId }) {
       <StyledTextInput
         className="border border-gray-300 p-4 mb-4 rounded-lg"
         placeholder="Título"
+        placeholderTextColor="#888"
         value={title}
         onChangeText={setTitle}
       />
       <StyledTextInput
-        className="border border-gray-300 p-4 mb-4 rounded-lg h-40" // Ajusta la altura
+        className="border border-gray-300 p-4 mb-4 rounded-lg h-40"
         placeholder="Descripción"
+        placeholderTextColor="#888"
         value={description}
         onChangeText={setDescription}
         multiline
-        numberOfLines={3} // Aumenta el número de líneas
+        numberOfLines={5}
       />
       <StyledTextInput
-        className="border border-gray-300 p-4 mb-4 rounded-lg h-40" // Ajusta la altura
+        className="border border-gray-300 p-4 mb-4 rounded-lg h-40"
         placeholder="Instrucciones"
+        placeholderTextColor="#888"
         value={instructions}
         onChangeText={setInstructions}
         multiline
-        numberOfLines={3} // Aumenta el número de líneas
+        numberOfLines={5}
       />
       <StyledView className="flex flex-row mb-4">
         <StyledTextInput
           className="border border-gray-300 p-4 rounded-lg flex-1"
           placeholder="Ingrediente"
+          placeholderTextColor="#888"
           value={ingredientInput}
           onChangeText={setIngredientInput}
         />
