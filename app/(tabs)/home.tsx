@@ -1,17 +1,72 @@
-import { StatusBar } from 'expo-status-bar';
 import React from 'react';
-import { Text, View } from 'react-native';
-
+import { View, Text, Image, TouchableOpacity, ScrollView } from 'react-native';
+import { styled } from 'nativewind';
+import { images, icons } from '../../constants';
 import { useAuth } from '../../context/auth-context';
-import Button from '@components/Button';
+
+const StyledView = styled(View);
+const StyledText = styled(Text);
+const StyledImage = styled(Image);
+const StyledTouchableOpacity = styled(TouchableOpacity);
+const StyledScrollView = styled(ScrollView);
 
 export default function Home() {
-  const { authState, handleLogout } = useAuth();
+  const { handleLogout } = useAuth();
+
   return (
-    <View className="flex-1 items-center justify-center bg-[#f8dcac]">
-      <Text>Token {authState?.token} </Text>
-      <Button title="Log out" handlePress={handleLogout} />
-      <StatusBar style="auto" />
-    </View>
+    <StyledView className="flex-1 bg-[#f8dcac]">
+      <StyledScrollView className="flex-1 px-4">
+        {/* Cabecera de Bienvenida */}
+        <StyledView className="mt-12 mb-8">
+          <StyledText className="text-4xl font-bold text-center text-[#354d4e]">¡Bienvenido a Eatsplorer!</StyledText>
+          <StyledText className="text-xl text-center text-[#354d4e] mt-2">Descubre recetas deliciosas y más</StyledText>
+        </StyledView>
+
+        {/* Imagen Redondeada */}
+        <StyledView className="items-center mb-10">
+          <StyledImage source={images.bread} className="w-48 h-48 rounded-full shadow-lg" />
+        </StyledView>
+
+        {/* Secciones */}
+        <StyledView className="mb-8">
+          <StyledText className="text-2xl font-semibold text-[#354d4e] mb-4">Explora Recetas</StyledText>
+          <StyledScrollView horizontal showsHorizontalScrollIndicator={false}>
+            <StyledTouchableOpacity className="bg-white p-4 rounded-lg shadow mr-4">
+              <StyledImage source={icons.chef} className="w-16 h-16 mb-2" />
+              <StyledText className="text-lg text-center text-[#354d4e]">Recetas Nuevas</StyledText>
+            </StyledTouchableOpacity>
+            <StyledTouchableOpacity className="bg-white p-4 rounded-lg shadow mr-4">
+              <StyledImage source={icons.recent} className="w-16 h-16 mb-2" />
+              <StyledText className="text-lg text-center text-[#354d4e]">Recetas Populares</StyledText>
+            </StyledTouchableOpacity>
+            <StyledTouchableOpacity className="bg-white p-4 rounded-lg shadow">
+              <StyledImage source={icons.bookmark} className="w-16 h-16 mb-2" />
+              <StyledText className="text-lg text-center text-[#354d4e]">Mis Favoritas</StyledText>
+            </StyledTouchableOpacity>
+          </StyledScrollView>
+        </StyledView>
+
+        {/* Botón de Logout */}
+        <StyledTouchableOpacity onPress={handleLogout} className="bg-red-500 p-4 rounded-lg mb-8">
+          <StyledText className="text-white text-center text-lg">Log out</StyledText>
+        </StyledTouchableOpacity>
+      </StyledScrollView>
+
+      {/* Barra de Navegación */}
+      <StyledView className="absolute bottom-0 w-full px-4 py-2 bg-white flex flex-row justify-evenly items-center shadow-lg rounded-lg">
+        <StyledTouchableOpacity>
+          <StyledImage source={icons.home} className="w-8 h-8" />
+        </StyledTouchableOpacity>
+        <StyledTouchableOpacity>
+          <StyledImage source={icons.recent} className="w-8 h-8" />
+        </StyledTouchableOpacity>
+        <StyledTouchableOpacity>
+          <StyledImage source={icons.chef} className="w-8 h-8" />
+        </StyledTouchableOpacity>
+        <StyledTouchableOpacity>
+          <StyledImage source={icons.profile} className="w-8 h-8" />
+        </StyledTouchableOpacity>
+      </StyledView>
+    </StyledView>
   );
 }
