@@ -1,8 +1,17 @@
-import { ActivityIndicator, Image, View, Text, TouchableOpacity } from "react-native";
+import { ActivityIndicator, Image, View, Text, TouchableOpacity, ImageSourcePropType, GestureResponderEvent } from "react-native";
+
+type ButtonProps = {
+  title: string;
+  handlePress?: (event: GestureResponderEvent) => void;
+  containerStyles?: string;
+  textStyles?: string;
+  isLoading?: boolean;
+  icon?: ImageSourcePropType;
+};
 
 function Button({
   title, handlePress, containerStyles, textStyles, isLoading, icon
-}) {
+}: ButtonProps) {
   return (
     <TouchableOpacity
       onPress={handlePress}
