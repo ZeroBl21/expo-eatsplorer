@@ -1,8 +1,8 @@
 import React from 'react';
-import { View, Text, SafeAreaView, ScrollView, Image, ImageBackground, StyleSheet } from 'react-native';
+import { View, Text, SafeAreaView, ScrollView, Image, StyleSheet } from 'react-native';
 import Markdown from 'react-native-markdown-display';
 
-import { images } from '../../constants';
+import { icons, images } from '../../constants';
 import Button from '@/components/Button';
 
 const markdownContent = `
@@ -67,21 +67,25 @@ export default function Recipe() {
         <View className='mt-8 h-[40vh] p-2'>
           <Image className="h-full w-full rounded" source={images.moro} resizeMode="cover" />
         </View>
-        <View className='py-2 px-3 flex-row justify-between'>
+        <View className='py-4 px-3 flex-row justify-between'>
           <View>
             <Text className='text-xl font-inter-bold'>Moro de Guandules</Text>
-            <Text className='text-xs font-inter-medium text-offblack'>12,435 Likes</Text>
+            <View className='flex-row gap-2 items-center'>
+              <Text className='text-sm font-inter-medium text-brand'>@ArdelisUlloa</Text>
+              <Text className='text-xs font-inter-medium text-offblack'>12,435 Likes</Text>
+            </View>
           </View>
           <Button
             title="Bookmark"
             containerStyles="border-0 py-1 bg-brand"
             textStyles="font-xs"
+            icon={icons.bookmark}
           />
         </View>
 
         <View className='px-3'>
           <View>
-            <Text className='text-md font-inter-medium py-2'>Ingredientes <Text className='text-red-500 font-inter-bold'>(Faltan Ingredientes!)</Text></Text>
+            <Text className='text-lg font-inter-medium py-2'>Ingredientes <Text className='text-red-500 font-inter-bold'>(Faltan Ingredientes!)</Text></Text>
             <View>
               <Text className='font-inter-regular'>- 2 Cucharadas grandes Aceite De Canola</Text>
               <Text className='font-inter-regular text-red-500'>- 4 Ajos</Text>
