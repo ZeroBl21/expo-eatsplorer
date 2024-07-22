@@ -1,9 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { SafeAreaView, ScrollView, View, Text, Image } from 'react-native';
 
 import FormField from '@/components/FormField';
-import { icons, images } from '@/constants';
-import LoginButton from '@/components/LoginButton';
+import { images } from '@/constants';
 
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
 import { router } from 'expo-router';
@@ -20,14 +19,34 @@ const data = [
 ];
 
 const App = () => {
+  const [items, setItems] = useState(data)
+  const [searchTerm, setSearchTerm] = useState('');
+
+  function toggleFavorite(id) {
+    const newData = items.map(item => {
+      if (item.id == id) {
+        return { ...item, saved: !item.saved }
+      }
+      return item
+    })
+
+    setItems(newData)
+  }
+
+  const filteredItems = items.filter(item =>
+    item.title.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
-    <SafeAreaView className='bg-primary flex-1 p-6' >
+    <SafeAreaView className='bg-primary flex-1 py-6 px-4' >
       <FormField
         placeholder="Buscar recetas..."
+        value={searchTerm}
+        handleChangeText={setSearchTerm}
       />
-      <ScrollView className='gap-y-4 w-full mx-auto mt-1'>
-        {data.map(item => (
-          <View className='flex-row bg-offwhite p-4 rounded-md border border-gray-300'>
+      <ScrollView className='gap-y-4 w-full mx-auto mt-1 px-2'>
+        {filteredItems.map(item => (
+          <View key={item.id} className='flex-row bg-offwhite p-4 rounded-md border border-gray-300'>
             <View className='self-center'>
               <Image className="rounded-md h-24 w-24" source={item.image} resizeMode="cover" />
             </View>
@@ -44,7 +63,7 @@ const App = () => {
             </View>
 
             <View className='ml-auto'>
-              <TabBarIcon size={30} name={item?.saved ? "heart" : 'heart-outline'} color={"red"} />
+              <TabBarIcon className='p-1' size={30} name={item?.saved ? "heart" : 'heart-outline'} color={"red"} onPress={() => toggleFavorite(item.id)} />
             </View>
           </View>
         ))}
