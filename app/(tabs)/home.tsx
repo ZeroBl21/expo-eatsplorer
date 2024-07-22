@@ -32,15 +32,15 @@ export default function Home() {
           <StyledText className="text-2xl font-semibold text-[#354d4e] mb-4">Explora Recetas</StyledText>
           <StyledScrollView horizontal showsHorizontalScrollIndicator={false}>
             <StyledTouchableOpacity className="bg-white p-4 rounded-lg shadow mr-4">
-              <StyledImage source={icons.chef} className="w-16 h-16 mb-2" />
+              <StyledImage source={icons.chef2} className="w-16 h-16 mb-2" />
               <StyledText className="text-lg text-center text-[#354d4e]">Recetas Nuevas</StyledText>
             </StyledTouchableOpacity>
             <StyledTouchableOpacity className="bg-white p-4 rounded-lg shadow mr-4">
-              <StyledImage source={icons.recent} className="w-16 h-16 mb-2" />
+              <StyledImage source={icons.recent2} className="w-16 h-16 mb-2" />
               <StyledText className="text-lg text-center text-[#354d4e]">Recetas Populares</StyledText>
             </StyledTouchableOpacity>
             <StyledTouchableOpacity className="bg-white p-4 rounded-lg shadow">
-              <StyledImage source={icons.bookmark} className="w-16 h-16 mb-2" />
+              <StyledImage source={icons.bookmark2} className="w-16 h-16 mb-2" />
               <StyledText className="text-lg text-center text-[#354d4e]">Mis Favoritas</StyledText>
             </StyledTouchableOpacity>
           </StyledScrollView>
@@ -52,21 +52,6 @@ export default function Home() {
         </StyledTouchableOpacity>
       </StyledScrollView>
 
-      {/* Barra de Navegación */}
-      <StyledView className="absolute bottom-0 w-full px-4 py-2 bg-white flex flex-row justify-evenly items-center shadow-lg rounded-lg">
-        <StyledTouchableOpacity>
-          <StyledImage source={icons.home} className="w-8 h-8" />
-        </StyledTouchableOpacity>
-        <StyledTouchableOpacity>
-          <StyledImage source={icons.recent} className="w-8 h-8" />
-        </StyledTouchableOpacity>
-        <StyledTouchableOpacity>
-          <StyledImage source={icons.chef} className="w-8 h-8" />
-        </StyledTouchableOpacity>
-        <StyledTouchableOpacity>
-          <StyledImage source={icons.profile} className="w-8 h-8" />
-        </StyledTouchableOpacity>
-      </StyledView>
     </StyledView>
   );
 }
