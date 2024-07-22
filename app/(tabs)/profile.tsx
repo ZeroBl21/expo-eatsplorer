@@ -1,25 +1,56 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { router } from "expo-router";
 import { View, Text, SafeAreaView, ScrollView, Image, ImageBackground } from 'react-native';
 
-import { icons, images } from '../../constants';
+import { icons, images } from '@/constants';
 import Button from '@/components/Button';
+import { useAuth } from '@/context/auth-context';
+import api from '@/api/db';
 
+type User = {
+  id: number | undefined;
+  username: string | undefined;
+  description: string | undefined;
+  recipesCount: number | undefined;
+  profileImage: string | undefined;
+  thumbnailImage: string | undefined;
+  createdAt: string | undefined;
+};
 
 export default function Profile() {
+  const [user, setUser] = useState<User>()
+  const { authState } = useAuth()
+
+  useEffect(() => {
+    async function fetchUser() {
+      try {
+        const res = await api.users.findById(authState?.userId, authState?.token ?? 4);
+        if (!res.isSuccess) return
+
+        setUser(res.user as User);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    if (authState?.userId) {
+      fetchUser();
+    }
+  }, [authState])
+
   return (
     <SafeAreaView className="flex-1 bg-offwhite">
       <ScrollView>
-        <ImageBackground className="z-20 flow-row pt-[20vh]" source={images.thumbnail}>
-          <Image className="h-32 w-32 p-4 rounded-full relative top-4" source={images.profile} resizeMode="contain" />
+        <ImageBackground className="z-20 flow-row pt-[20vh]" source={user?.thumbnailImage ?? images.thumbnail}>
+          <Image className="h-32 w-32 p-4 rounded-full relative top-4" source={user?.profileImage ?? images.profile} resizeMode="contain" />
         </ImageBackground>
 
         <View className="bg-offwhite p-4 border-b-4 border-secondary gap-4">
-          <Text className="text-xl text-secondary-dark font-inter-medium">@ArdelisUlloa</Text>
+          <Text className="text-xl text-secondary-dark font-inter-medium">{user?.username ?? "@ArdelisUlloa"}</Text>
           <Text className="text-pretty text-xs font-inter-regular">
-            <Text className="font-inter-bold">10</Text> Recetas Guardadas
+            <Text className="font-inter-bold">{user?.recipesCount ?? 0}</Text> Recetas Guardadas
           </Text>
-          <Text className="text-xs font-inter-regular">Me gusta cocinar, pero no soy creativa ni tengo tanto dominio, asi que busco recetas increibles que me motiven a seguir aprendiendo y disfrutar de la cocina</Text>
+          <Text className="text-xs font-inter-regular">{user?.description ?? "Me gusta cocinar, pero no soy creativa ni tengo tanto dominio, asi que busco recetas increibles que me motiven a seguir aprendiendo y disfrutar de la cocina"}</Text>
           <View className="flex-row pt-2 gap-2 justify-around">
             <Button
               title="Subir Receta"

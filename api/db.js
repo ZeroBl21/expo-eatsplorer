@@ -25,7 +25,7 @@ const api = {
           console.log('User login:', result);
           return result;
         } else {
-          console.error('Login failed:', result);
+          console.error('Login failed');
           return { isSuccess: false };
         }
       } catch (error) {
@@ -127,6 +127,44 @@ const api = {
         return { isSuccess: false };
       }
     },
+    async findById(id, token) {
+      try {
+        console.log(id, token)
+        console.log("https://api-eat.azurewebsites.net/api/Perfil/" + id)
+
+        const response = await fetch("https://api-eat.azurewebsites.net/api/Perfil/" + id, {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          }
+        })
+
+        console.log("Response", response)
+        const result = await response.json();
+        console.log("Result", result)
+        if (response.ok) {
+          console.log('Recipe uploaded:', result);
+          return {
+            isSuccess: true,
+            user: {
+              id: result?.id_usuario,
+              username: result?.usuario,
+              description: result?.descripcion,
+              recipesCount: result?.cant_recetas_guardadas,
+              profileImage: result?.url_foto_perfil,
+              thumnailImage: result?.url_foto_portada,
+              createdAt: result?.fecha_creacion
+            }
+          };
+        } else {
+          console.error('Find user failed:', result);
+          return { isSuccess: false, user: {} };
+        }
+      } catch (e) {
+        console.error("Network Error", e)
+        return { isSuccess: false, user: {} };
+      }
+    }
   },
   recipes: {
     async uploadRecipe(recipe, token) {
