@@ -13,7 +13,6 @@ const api = {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            // 'Authorization': `Bearer ${authToken}`,
           },
           body: JSON.stringify({
             correo: user.email,
@@ -24,14 +23,14 @@ const api = {
         const result = await response.json();
         if (response.ok) {
           console.log('User login:', result);
-          return result
+          return result;
         } else {
           console.error('Login failed:', result);
-          return { isSuccess: false }
+          return { isSuccess: false };
         }
       } catch (error) {
         console.error('Error logging user:', error);
-        return { isSuccess: false }
+        return { isSuccess: false };
       }
     },
     async register(user) {
@@ -40,7 +39,6 @@ const api = {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            // 'Authorization': `Bearer ${authToken}`,
           },
           body: JSON.stringify({
             usuario: user.username,
@@ -52,14 +50,14 @@ const api = {
         const result = await response.json();
         if (response.ok) {
           console.log('User registered:', result);
-          return result
+          return result;
         } else {
           console.error('Registration failed:', result);
-          return { isSuccess: false }
+          return { isSuccess: false };
         }
       } catch (error) {
         console.error('Error registering user:', error);
-        return { isSuccess: false }
+        return { isSuccess: false };
       }
     },
     async authenticate(code) {
@@ -81,28 +79,26 @@ const api = {
 
         const userResponse = await fetch('https://api.github.com/user', {
           headers: {
-            Authorization: `token ${tokenData.access_token}`
-          }
+            Authorization: `token ${tokenData.access_token}`,
+          },
         });
 
         const userData = await userResponse.json();
         if (!userData.email) {
           const emailsResponse = await fetch('https://api.github.com/user/emails', {
             headers: {
-              Authorization: `token ${tokenData.access_token}`
-            }
+              Authorization: `token ${tokenData.access_token}`,
+            },
           });
 
           const emailsData = await emailsResponse.json();
-          const primaryEmail = emailsData?.find(email => email.primary && email.verified);
+          const primaryEmail = emailsData?.find((email) => email.primary && email.verified);
           if (primaryEmail) {
             userData.email = primaryEmail.email;
           }
         }
-        // console.log(userData)
-        // const userExists = await api.users.exists(userData)
 
-        return { user: userData, token: tokenData.access_token }
+        return { user: userData, token: tokenData.access_token };
       } catch (error) {
         console.error('Error during authentication:', error);
       }
@@ -124,38 +120,36 @@ const api = {
           return data;
         } else {
           console.error('Check user failed:', data);
-          return data
+          return data;
         }
       } catch (error) {
         console.error('Error checking user:', error);
-
-        return { isSuccess: false }
+        return { isSuccess: false };
       }
-    }
+    },
   },
   recipes: {
-    async uploadRecipe(recipe) {
+    async uploadRecipe(recipe, token) {
       try {
-        const response = await fetch(BACKEND + '/api/Recetas/Crear', {
+        const response = await fetch(BACKEND + '/api/Recipe/Ingresar', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
           },
           body: JSON.stringify({
             titulo: recipe.title,
             descripcion: recipe.description,
             instrucciones: recipe.instructions,
-            foto_receta: recipe.photo,
+            foto_receta: "ipzum lorem",  // Valor fijo para la imagen
             usuario_id: recipe.userId,
-            fecha_creacion: new Date().toISOString(),
-            recetas_Ingredientes: recipe.ingredients.map(ingredient => ({
-              id_ingrediente: ingredient.id,
-              ingrediente: ingredient.name,
-            })),
           }),
         });
 
-        const result = await response.json();
+        const text = await response.text();
+        console.log('Response text:', text);
+
+        const result = JSON.parse(text);
         if (response.ok) {
           console.log('Recipe uploaded:', result);
           return { isSuccess: true, data: result };
@@ -168,7 +162,69 @@ const api = {
         return { isSuccess: false };
       }
     },
-  }
-}
+    async uploadIngredient(ingredient, token) {
+      try {
+        const response = await fetch(BACKEND + '/api/Ingredientes/Ingresar', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify(ingredient),
+        });
+
+        const result = await response.json();
+        if (response.ok) {
+          console.log('Ingredient uploaded:', result);
+          return { isSuccess: true, data: result };
+        } else {
+          console.error('Upload ingredient failed:', result);
+          return { isSuccess: false };
+        }
+      } catch (error) {
+        console.error('Error uploading ingredient:', error);
+        return { isSuccess: false };
+      }
+    },
+    async relateIngredientsToRecipe(recipeId, ingredientIds, token) {
+      try {
+        const results = [];
+        for (const ingredientId of ingredientIds) {
+          const response = await fetch(BACKEND + '/api/RecetasIngredientes/Ingresar', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              id_receta: recipeId,
+              id_ingrediente: ingredientId,
+            }),
+          });
+
+          const result = await response.text();
+          if (response.ok) {
+            try {
+              results.push(JSON.parse(result));
+            } catch (e) {
+              console.error('Error parsing JSON response:', e);
+              console.error('Response text:', result);
+              return { isSuccess: false };
+            }
+          } else {
+            console.error('Relate ingredient to recipe failed:', result);
+            console.error('Response text:', result);
+            return { isSuccess: false, data: results };
+          }
+        }
+        console.log('Ingredients related to recipe:', results);
+        return { isSuccess: true, data: results };
+      } catch (error) {
+        console.error('Error relating ingredients to recipe:', error);
+        return { isSuccess: false };
+      }
+    },
+  },
+};
 
 export default api;

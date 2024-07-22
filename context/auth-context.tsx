@@ -1,9 +1,9 @@
-import { GITHUB_CLIENT_ID } from '@env';
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Alert } from 'react-native';
 import { useAuthRequest } from 'expo-auth-session';
 import * as Linking from 'expo-linking';
-import api from "../api/db"
+import api from "../api/db";
+import { GITHUB_CLIENT_ID } from '@env';
 
 const CLIENT_ID = GITHUB_CLIENT_ID;
 
@@ -26,15 +26,17 @@ const AuthContext = createContext<AuthProps>({});
 type AuthState = {
   token: string | null;
   authenticated: boolean;
+  userId: number | null;
 }
 
 const initialAuthState = {
   token: null,
-  authenticated: false
+  authenticated: false,
+  userId: null,
 }
 
 export const AuthProvider = ({ children }: any) => {
-  const [authState, setAuthState] = useState(initialAuthState)
+  const [authState, setAuthState] = useState(initialAuthState);
 
   const [request, response, promptOauth] = useAuthRequest(
     {
@@ -45,36 +47,35 @@ export const AuthProvider = ({ children }: any) => {
     discovery
   );
 
-
   useEffect(() => {
     if (response?.type === 'success') {
       const { code } = response.params;
-      if (code && authState?.token) return
+      if (code && authState?.token) return;
 
-      api.users.authenticate(code).then(data => {
-        if (!data?.user) return
+      api.users.authenticate(code).then((data) => {
+        if (!data?.user) return;
         setAuthState({
           token: data.token,
-          authenticated: true
-        })
-      })
+          authenticated: true,
+          userId: data.user.id,
+        });
+      });
     }
   }, [response]);
 
   async function handleLogin(email: string, password: string) {
-    const result = await api.users.login({
-      email: email,
-    }, password);
+    const result = await api.users.login({ email: email }, password);
     if (!result.isSuccess) {
-      return false
+      return false;
     }
 
     setAuthState({
       token: result.token,
-      authenticated: true
-    })
+      authenticated: true,
+      userId: result.id_usuario,
+    });
 
-    return true
+    return true;
   }
 
   async function handleRegister(username: string, email: string, password: string) {
@@ -86,26 +87,26 @@ export const AuthProvider = ({ children }: any) => {
 
     setAuthState({
       token: result.token,
-      authenticated: true
-    })
+      authenticated: true,
+      userId: result.id_usuario,
+    });
 
-    return true
+    return true;
   }
 
   const handleLogout = () => {
-    setAuthState(initialAuthState)
+    setAuthState(initialAuthState);
   };
 
   return (
-    <AuthContext.Provider value={
-      {
-        authState,
-        promptOauth,
-        handleLogin,
-        handleRegister,
-        handleLogout,
-        request
-      }}>
+    <AuthContext.Provider value={{
+      authState,
+      promptOauth,
+      handleLogin,
+      handleRegister,
+      handleLogout,
+      request,
+    }}>
       {children}
     </AuthContext.Provider>
   );
