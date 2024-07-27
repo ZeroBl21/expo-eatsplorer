@@ -18,7 +18,7 @@ const data = [
   // ... más elementos
 ];
 
-const App = () => {
+const Search = () => {
   const [items, setItems] = useState(data)
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -74,4 +74,4 @@ const App = () => {
   );
 };
 
-export default App;
+export default Search;
