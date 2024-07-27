@@ -62,6 +62,7 @@ export default function Profile() {
               title="Editar Perfil"
               icon={icons.pencil}
               containerStyles="border-0"
+              handlePress={() => router.replace("/(tabs)/edit-profile")}
             />
           </View>
         </View>
