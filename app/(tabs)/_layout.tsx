@@ -30,11 +30,20 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
-          name="shelf"
+          name="search"
           options={{
-            title: 'Recetas',
+            title: 'Search',
             tabBarIcon: ({ color, focused }) => (
               <TabBarIcon name={focused ? 'search' : 'search-outline'} color={color} />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="shelf"
+          options={{
+            title: 'Shelf',
+            tabBarIcon: ({ color, focused }) => (
+              <TabBarIcon name={focused ? 'menu' : 'menu-outline'} color={color} />
             ),
           }}
         />
@@ -61,6 +70,12 @@ export default function TabLayout() {
         />
         <Tabs.Screen
           name="edit-profile"
+          options={{
+            href: null,
+          }}
+        />
+        <Tabs.Screen
+          name="change-password"
           options={{
             href: null,
           }}

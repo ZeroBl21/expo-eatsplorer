@@ -2,9 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { router } from "expo-router";
 import { View, Text, SafeAreaView, ScrollView, Image, ImageBackground } from 'react-native';
 
-import { icons, images } from '@/constants';
-import Button from '@/components/Button';
 import { useAuth } from '@/context/auth-context';
+import Button from '@/components/Button';
+import { TabBarIcon } from '@/components/navigation/TabBarIcon';
+
+import { icons, images } from '@/constants';
 import api from '@/api/db';
 
 type User = {
@@ -51,7 +53,7 @@ export default function Profile() {
             <Text className="font-inter-bold">{user?.recipesCount ?? 0}</Text> Recetas Guardadas
           </Text>
           <Text className="text-xs font-inter-regular">{user?.description ?? "Me gusta cocinar, pero no soy creativa ni tengo tanto dominio, asi que busco recetas increibles que me motiven a seguir aprendiendo y disfrutar de la cocina"}</Text>
-          <View className="flex-row pt-2 gap-2 justify-around">
+          <View className="flex-row pt-2 gap-2 justify-around items-center">
             <Button
               title="Subir Receta"
               icon={icons.plus2}
@@ -64,6 +66,9 @@ export default function Profile() {
               containerStyles="border-0"
               handlePress={() => router.replace("/(tabs)/edit-profile")}
             />
+            <View className="bg-secondary-dark p-1 mb-2 rounded-md">
+              <TabBarIcon className='p-[2px]' size={18} name={'cog'} color={"white"} onPress={() => router.replace("/(tabs)/change-password")} />
+            </View>
           </View>
         </View>
         <View className="flex-row bg-offwhite justify-around p-4">
