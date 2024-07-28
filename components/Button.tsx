@@ -16,7 +16,7 @@ function Button({
     <TouchableOpacity
       onPress={handlePress}
       activeOpacity={0.7}
-      className={`bg-secondary-dark rounded-md border border-color flex flex-row justify-center items-center px-4 py-1 ${containerStyles} ${isLoading ? "opacity-50" : ""}`}
+      className={`bg-secondary-dark rounded-md border border-gray-400 flex flex-row justify-center items-center px-4 py-1 ${containerStyles} ${isLoading ? "opacity-50" : ""}`}
       disabled={isLoading}
     >
       <View className="flex-row gap items-center">
