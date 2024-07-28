@@ -43,8 +43,8 @@ export default function Profile() {
   return (
     <SafeAreaView className="flex-1 bg-offwhite">
       <ScrollView>
-        <ImageBackground className="z-20 flow-row pt-[20vh]" source={user?.thumbnailImage ?? images.thumbnail}>
-          <Image className="h-32 w-32 p-4 rounded-full relative top-4" source={user?.profileImage ?? images.profile} resizeMode="contain" />
+        <ImageBackground className="z-20 flow-row pt-[20vh]" source={user?.thumbnailImage ? { uri: user?.thumbnailImage } : images.thumbnail}>
+          <Image className="h-32 w-32 p-4 rounded-full relative top-4" source={user?.profileImage ? { uri: user?.profileImage } : images.profile} resizeMode="contain" />
         </ImageBackground>
 
         <View className="bg-offwhite p-4 border-b-4 border-secondary gap-4">
