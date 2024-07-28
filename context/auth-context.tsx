@@ -4,6 +4,7 @@ import { useAuthRequest } from 'expo-auth-session';
 import * as Linking from 'expo-linking';
 import api from "../api/db";
 import { GITHUB_CLIENT_ID } from '@env';
+import { router } from 'expo-router';
 
 const CLIENT_ID = GITHUB_CLIENT_ID;
 
@@ -48,18 +49,28 @@ export const AuthProvider = ({ children }: any) => {
   );
 
   useEffect(() => {
-    if (response?.type === 'success') {
-      const { code } = response.params;
-      if (code && authState?.token) return;
+    async function loginUserWithGithub() {
+      if (response?.type === 'success') {
+        const { code } = response.params;
+        if (code && authState?.token) return;
 
-      api.users.authenticate(code).then((data) => {
-        if (!data?.user) return;
-        setAuthState({
-          token: data.token,
-          authenticated: true,
-          userId: data.user.id,
-        });
-      });
+        try {
+          const data = await api.users.loginGithub(code);
+          if (!data.isSuccess) return;
+          setAuthState({
+            token: data?.token,
+            authenticated: true,
+            userId: data?.user?.id,
+          });
+          router.replace("/home");
+        } catch (error) {
+          console.error('Error logging in with GitHub:', error);
+        }
+      }
+    }
+
+    if (!authState.token) {
+      loginUserWithGithub();
     }
   }, [response]);
 

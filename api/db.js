@@ -164,7 +164,72 @@ const api = {
         console.error("Network Error", e)
         return { isSuccess: false, user: {} };
       }
-    }
+    },
+    async changePassword(oldPassword, newPassword, token) {
+      try {
+        const response = await fetch(BACKEND + "/api/CambiarClave/CambiarClave", {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            claveActual: oldPassword,
+            nuevaClave: newPassword,
+          }),
+        })
+
+        const result = await response.json();
+        if (response.ok) {
+          console.log('Recipe uploaded:', result);
+          return {
+            isSuccess: true,
+          };
+        } else {
+          console.error('Find user failed:', result);
+          return { isSuccess: false };
+        }
+      } catch (e) {
+        console.error("Network Error", e)
+        return { isSuccess: false };
+      }
+    },
+    async loginGithub(code) {
+      const URL = BACKEND + "/api/Acceso/github-callback"
+      const options = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          code: code
+        }),
+      };
+
+      try {
+        const response = await fetch(URL, options);
+        const result = await response.json();
+
+        if (!response.ok) {
+          console.error(`Login failed: ${result.message || 'Unknown error'}`);
+          return { isSuccess: false, message: result.message || 'Login failed' };
+        }
+
+        return {
+          isSuccess: true,
+          token: result.token,
+          user: {
+            id: result.id_usuario,
+            username: result.usuario,
+            email: result.correo,
+            profileImage: result.url_foto_perfil
+          }
+        };
+      } catch (error) {
+        console.error('Error logging user:', error);
+        return { isSuccess: false, message: error.message };
+      }
+    },
   },
   recipes: {
     async uploadRecipe(recipe, token) {
