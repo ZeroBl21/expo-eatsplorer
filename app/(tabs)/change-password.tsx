@@ -6,9 +6,12 @@ import { images } from '@/constants';
 import FormField from '@components/FormField';
 import Button from '@components/Button';
 import { router } from 'expo-router';
+import { useAuth } from '@/context/auth-context';
+import api from '@/api/db';
 
 
 export default function ChangePassword() {
+  const { authState } = useAuth()
   const { control, handleSubmit, formState: { errors }, setError } = useForm({
     defaultValues: {
       currentPassword: '',
@@ -19,9 +22,9 @@ export default function ChangePassword() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   async function submit(data: any) {
-    const { password, passwordConfirm } = data;
+    const { currentPassword, newPassword, passwordConfirm } = data;
 
-    if (password !== passwordConfirm) {
+    if (newPassword !== passwordConfirm) {
       setError('passwordConfirm', {
         type: 'manual',
         message: 'Password and Confirm Password are not the same'
@@ -32,9 +35,11 @@ export default function ChangePassword() {
 
     setIsSubmitting(true);
     try {
-      // TODO: Add Fetch to backend for check current password
-
-      // TODO: Add Fetch to backend for update password
+      const res = await api.users.changePassword(currentPassword, newPassword, authState?.token)
+      if (!res.isSuccess) {
+        Alert.alert("Error", "Cannot change password");
+        return
+      }
 
       router.replace("/(tabs)/home");
     } catch (error: any) {
@@ -58,19 +63,19 @@ export default function ChangePassword() {
             render={({ field: { onChange, value } }) => (
               <FormField
                 title="Current Password"
-                placeholder="Confirm your password..."
+                placeholder="Enter your current password..."
                 type="password"
                 value={value}
                 handleChangeText={onChange}
                 otherStyles="mt-4"
-                error={errors.passwordConfirm}
+                error={errors.currentPassword}
               />
             )}
           />
 
           <Controller
             control={control}
-            name="currentPassword"
+            name="newPassword"
             rules={{
               required: 'Password is required',
               minLength: { value: 8, message: 'Password must be at least 8 characters long' }
@@ -78,12 +83,12 @@ export default function ChangePassword() {
             render={({ field: { onChange, value } }) => (
               <FormField
                 title="Password"
-                placeholder="Enter your password..."
+                placeholder="Enter your new password..."
                 type="password"
                 value={value}
                 handleChangeText={onChange}
                 otherStyles="mt-2"
-                error={errors.currentPassword}
+                error={errors.newPassword}
               />
             )}
           />
