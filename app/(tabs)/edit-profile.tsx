@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
 import { View, ScrollView, Image, SafeAreaView, Text, Alert } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 
@@ -6,26 +6,29 @@ import { images } from '@/constants';
 import FormField from '@components/FormField';
 import Button from '@components/Button';
 import MultiSelect from '@/components/MultiSelect';
+import { useAuth } from '@/context/auth-context';
+import api from '@/api/db';
+import { router } from 'expo-router';
 
 
-const food = [
-  { id: '1', name: 'Bananas' },
-  { id: '2', name: 'Manzanas' },
-  { id: '3', name: 'Calabazas' },
-  { id: '4', name: 'Frutos Secos' },
-  { id: '5', name: 'Brocoli' }
-];
-
-const foodAllergies = [
-  { id: '1', name: 'Mani' },
-  { id: '2', name: 'Frutos secos' },
-  { id: '3', name: 'Leche' },
-  { id: '4', name: 'Huevo' },
-  { id: '5', name: 'Pescado' },
-];
+type User = {
+  id: number;
+  username: string;
+  email: string;
+  description: string;
+  profileImage?: string;
+  thumbnailImage?: string;
+  likes: any[];
+  dislikes: any[];
+  alergic: any[];
+};
 
 export default function EditProfile() {
-  const { control, handleSubmit, formState: { errors }, setError } = useForm({
+  const { authState } = useAuth()
+  const [ingredients, setIngredients] = useState([])
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const { control, reset, handleSubmit, formState: { errors }, setError } = useForm<User>({
     defaultValues: {
       username: '',
       email: '',
@@ -35,9 +38,52 @@ export default function EditProfile() {
       alergic: []
     }
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useLayoutEffect(() => {
+    async function fetchUser() {
+      try {
+        const data = await api.users.findById(authState?.userId, authState?.token ?? 4);
+        if (!data.isSuccess) return
+
+        reset(data.user as User);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    if (authState?.userId) {
+      fetchUser();
+    }
+  }, [authState])
+
+  useEffect(() => {
+    async function fetchOptions() {
+      const data = await api.ingredients.list(authState?.token);
+      if (!data.isSuccess) return
+
+      setIngredients(data.ingredients)
+    }
+
+    if (authState?.userId) {
+      fetchOptions();
+    }
+  }, [authState])
 
   async function submit(data: any) {
+    setIsSubmitting(true);
+    try {
+      const res = await api.users.update(data, authState?.token)
+      if (!res.isSuccess) {
+        Alert.alert("Error", "Cannot update user");
+        return
+      }
+
+      router.replace("/(tabs)/profile");
+    } catch (error: any) {
+      Alert.alert("Error", error.message);
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -110,7 +156,7 @@ export default function EditProfile() {
             name="likes"
             render={({ field: { onChange, value } }) => (
               <MultiSelect
-                items={food}
+                items={ingredients}
                 value={value}
                 onChange={onChange}
                 selectText="Select your favorites"
@@ -125,7 +171,7 @@ export default function EditProfile() {
             name="dislikes"
             render={({ field: { onChange, value } }) => (
               <MultiSelect
-                items={food}
+                items={ingredients}
                 value={value}
                 onChange={onChange}
                 selectText="Select your dislikes"
@@ -140,7 +186,7 @@ export default function EditProfile() {
             name="alergic"
             render={({ field: { onChange, value } }) => (
               <MultiSelect
-                items={foodAllergies}
+                items={ingredients}
                 value={value}
                 onChange={onChange}
                 selectText="Select Allergies"
