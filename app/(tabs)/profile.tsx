@@ -16,7 +16,9 @@ type User = {
   recipesCount: number | undefined;
   profileImage: string | undefined;
   thumbnailImage: string | undefined;
-  createdAt: string | undefined;
+  likes: any[] | undefined;
+  dislikes: any[] | undefined;
+  alergic: any[] | undefined;
 };
 
 export default function Profile() {
@@ -28,6 +30,7 @@ export default function Profile() {
       try {
         const res = await api.users.findById(authState?.userId, authState?.token ?? 4);
         if (!res.isSuccess) return
+        console.log(res.user)
 
         setUser(res.user as User);
       } catch (error) {
@@ -48,7 +51,7 @@ export default function Profile() {
         </ImageBackground>
 
         <View className="bg-offwhite p-4 border-b-4 border-secondary gap-4">
-          <Text className="text-xl text-secondary-dark font-inter-medium">{user?.username ?? "@ArdelisUlloa"}</Text>
+          <Text className="text-xl text-secondary-dark font-inter-medium">@{user?.username ?? "Loading..."}</Text>
           <Text className="text-pretty text-xs font-inter-regular">
             <Text className="font-inter-bold">{user?.recipesCount ?? 0}</Text> Recetas Guardadas
           </Text>
@@ -86,9 +89,18 @@ export default function Profile() {
         </View>
         <View className="bg-offwhite h-full p-4 py-6 space-y-2">
           <Text className="font-bold">Detalles:</Text>
-          <Text className="font-inter-regular">☺ Me gustan las bananas</Text>
-          <Text className="font-inter-regular">😥 No consumo frutos secos</Text>
-          <Text className="font-inter-regular">🤒 Alergica al brocoli</Text>
+          {user?.likes?.length ? (
+            <Text className="font-inter-regular">☺ Me gustan las {user.likes.map(item => item.name).join(", ")}</Text>
+          ) : null}
+
+          {user?.dislikes?.length ? (
+            <Text className="font-inter-regular">😥 No consumo {user.dislikes.map(item => item.name).join(", ")}</Text>
+          ) : null}
+
+          {user?.alergic?.length ? (
+            <Text className="font-inter-regular">🤒 Alergica al {user.alergic.map(item => item.name).join(", ")}</Text>
+          ) : null}
+
           <View className="items-end p-2">
             <Image className="border-2 h-16 w-32" source={images.bread} resizeMode="contain" />
           </View>
