@@ -22,7 +22,6 @@ const api = {
 
         const result = await response.json();
         if (response.ok) {
-          console.log('User login:', result);
           return result;
         } else {
           console.error('Login failed');
@@ -49,7 +48,6 @@ const api = {
 
         const result = await response.json();
         if (response.ok) {
-          console.log('User registered:', result);
           return result;
         } else {
           console.error('Registration failed:', result);
@@ -129,9 +127,6 @@ const api = {
     },
     async findById(id, token) {
       try {
-        console.log(id, token)
-        console.log("https://api-eat.azurewebsites.net/api/Perfil/" + id)
-
         const response = await fetch("https://api-eat.azurewebsites.net/api/Perfil/" + id, {
           headers: {
             'Content-Type': 'application/json',
@@ -139,21 +134,21 @@ const api = {
           }
         })
 
-        console.log("Response", response)
         const result = await response.json();
-        console.log("Result", result)
         if (response.ok) {
-          console.log('Recipe uploaded:', result);
           return {
             isSuccess: true,
             user: {
-              id: result?.id_usuario,
-              username: result?.usuario,
-              description: result?.descripcion,
-              recipesCount: result?.cant_recetas_guardadas,
-              profileImage: result?.url_foto_perfil,
-              thumnailImage: result?.url_foto_portada,
-              createdAt: result?.fecha_creacion
+              id: id,
+              username: result?.usuario?.usuario,
+              description: result?.usuario?.descripcion,
+              email: result?.usuario?.correo,
+              recipesCount: result?.usuario?.cant_recetas_guardadas ?? 0,
+              profileImage: result?.usuario?.url_foto_perfil,
+              thumnailImage: result?.usuario?.url_foto_portada,
+              likes: formatIngredients(result?.usuario?.gustos),
+              dislikes: formatIngredients(result?.usuario?.noConsume),
+              alergic: formatIngredients(result?.usuario?.alergico),
             }
           };
         } else {
@@ -167,7 +162,7 @@ const api = {
     },
     async changePassword(oldPassword, newPassword, token) {
       try {
-        const response = await fetch(BACKEND + "/api/CambiarClave/CambiarClave", {
+        const response = await fetch(BACKEND + "/api/CambiarClave/cambiarClave", {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -181,7 +176,6 @@ const api = {
 
         const result = await response.json();
         if (response.ok) {
-          console.log('Recipe uploaded:', result);
           return {
             isSuccess: true,
           };
@@ -230,6 +224,43 @@ const api = {
         return { isSuccess: false, message: error.message };
       }
     },
+    async update(user, token) {
+      const URL = BACKEND + "/api/Perfil/actualizarPerfil"
+      const options = {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          usuario: user.username,
+          correo: user.email,
+          descripcion: user.description,
+          urlFotoPerfil: null,
+          urlFotoPortada: null,
+          gustos: user.likes,
+          noConsume: user.dislikes,
+          alergico: user.alergic
+        }),
+      };
+
+      try {
+        const response = await fetch(URL, options);
+        const result = await response.json();
+
+        if (!response.ok) {
+          console.error(`Update failed: ${result.message || 'Unknown error'}`);
+          return { isSuccess: false, message: result.message || 'Update failed' };
+        }
+
+        return {
+          isSuccess: true,
+        };
+      } catch (error) {
+        console.error('Error updating user:', error);
+        return { isSuccess: false, message: error.message };
+      }
+    },
   },
   recipes: {
     async uploadRecipe(recipe, token) {
@@ -250,11 +281,9 @@ const api = {
         });
 
         const text = await response.text();
-        console.log('Response text:', text);
 
         const result = JSON.parse(text);
         if (response.ok) {
-          console.log('Recipe uploaded:', result);
           return { isSuccess: true, data: result };
         } else {
           console.error('Upload recipe failed:', result);
@@ -278,7 +307,6 @@ const api = {
 
         const result = await response.json();
         if (response.ok) {
-          console.log('Ingredient uploaded:', result);
           return { isSuccess: true, data: result };
         } else {
           console.error('Upload ingredient failed:', result);
@@ -328,6 +356,44 @@ const api = {
       }
     },
   },
+  ingredients: {
+    async list(token) {
+      const URL = BACKEND + "/api/Ingredientes/Listar"
+      const options = {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      };
+
+      try {
+        const response = await fetch(URL, options);
+        const result = await response.json();
+
+        if (!response.ok) {
+          console.error(`List ingredients failed: ${result.message || 'Unknown error'}`);
+          return { isSuccess: false, message: result.message || 'Search failed' };
+        }
+
+        return {
+          isSuccess: true,
+          ingredients: formatIngredients(result)
+        };
+      } catch (error) {
+        console.error('Error searching ingredients:', error);
+        return { isSuccess: false, message: error.message };
+      }
+    },
+  }
 };
+
+function formatIngredients(array) {
+  if (!array?.length) {
+    return []
+  }
+
+  return array.map(i => ({ id: i.id_ingrediente, name: i.nombre }))
+}
 
 export default api;
