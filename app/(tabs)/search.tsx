@@ -18,7 +18,7 @@ function Card({ item, toggleFavorite }) {
 			<View className="self-center">
 				<Image
 					className="rounded-md h-24 w-24"
-					source={randomImage[Math.floor(Math.random() * 3)]}
+					source={randomImage[(item.id + 1) % 3]}
 					resizeMode="cover"
 				/>
 			</View>
