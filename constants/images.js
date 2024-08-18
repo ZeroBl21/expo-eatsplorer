@@ -9,5 +9,6 @@ import bread from "../assets/images/bread.jpg";
 import moro from "../assets/images/moro.jpg";
 import rice from "../assets/images/rice.jpg";
 import meat from "../assets/images/meat.jpg";
+import background from "../assets/images/background.jpg";
 
-export default { profile, thumbnail, cards, path, logo, logoSmall, empty, bread, moro, rice, meat};
+export default { profile, thumbnail, cards, path, logo, logoSmall, empty, bread, moro, rice, meat, background };
