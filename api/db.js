@@ -344,7 +344,7 @@ const api = {
 		async relateIngredientsToRecipe(recipeId, ingredientIds, token) {
 			try {
 				const results = [];
-				for (const ingredientId of ingredientIds) {
+				for (const { ingredientId, quantity } of ingredientsWithQuantities) {
 					const response = await fetch(
 						`${BACKEND}/api/RecetasIngredientes/Ingresar`,
 						{
@@ -356,6 +356,7 @@ const api = {
 							body: JSON.stringify({
 								id_receta: recipeId,
 								id_ingrediente: ingredientId,
+								cantidad: quantity, // Aquí se agrega la cantidad del ingrediente
 							}),
 						},
 					);
@@ -379,6 +380,44 @@ const api = {
 				return { isSuccess: true, data: results };
 			} catch (error) {
 				console.error("Error relating ingredients to recipe:", error);
+				return { isSuccess: false };
+			}
+		},
+		async relateTagsToRecipe(recipeId, tagIds, token) {
+			try {
+				const results = [];
+				for (const tagId of tagIds) {
+					const response = await fetch(`${BACKEND}/api/RecetasTags/Ingresar`, {
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json",
+							Authorization: `Bearer ${token}`,
+						},
+						body: JSON.stringify({
+							id_receta: recipeId,
+							id_tag: tagId,
+						}),
+					});
+
+					const result = await response.text();
+					if (response.ok) {
+						try {
+							results.push(JSON.parse(result));
+						} catch (e) {
+							console.error("Error parsing JSON response:", e);
+							console.error("Response text:", result);
+							return { isSuccess: false };
+						}
+					} else {
+						console.error("Relate tag to recipe failed:", result);
+						console.error("Response text:", result);
+						return { isSuccess: false, data: results };
+					}
+				}
+				console.log("Tags related to recipe:", results);
+				return { isSuccess: true, data: results };
+			} catch (error) {
+				console.error("Error relating tags to recipe:", error);
 				return { isSuccess: false };
 			}
 		},
@@ -621,6 +660,120 @@ const api = {
 					username: data.data.usuario_nombre ?? "",
 				},
 			};
+		},
+	},
+	savedRecipes: {
+		async list(token) {
+			const URL = `${BACKEND}/api/Recetas_Guardadas/Listar`;
+			const options = {
+				method: "GET",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${token}`,
+				},
+			};
+
+			const response = await fetch(URL, options).catch((err) => err);
+
+			if (response instanceof Error) {
+				console.error("Network error:", response.message);
+				return { isSuccess: false, error: response.message };
+			}
+
+			if (!response.ok) {
+				console.error("HTTP error:", response.status, response.statusText);
+				return {
+					success: false,
+					status: response.status,
+					error: response.statusText,
+				};
+			}
+
+			const data = await response.json().catch((err) => err);
+
+			if (data instanceof Error) {
+				console.error("Response parsing error:", data.message);
+				return { isSuccess: false, error: data.message };
+			}
+			console.log(data);
+
+			return { isSuccess: true, recipes: formatRecipes(data.data) };
+		},
+		async add(token, id) {
+			const URL = `${BACKEND}/api/Recetas_Guardadas/Ingresar`;
+			const options = {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${token}`,
+				},
+				body: JSON.stringify({
+					id_receta: id,
+				}),
+			};
+
+			const response = await fetch(URL, options).catch((err) => err);
+
+			if (response instanceof Error) {
+				console.error("Network error:", response.message);
+				return { isSuccess: false, error: response.message };
+			}
+
+			if (!response.ok) {
+				console.error("HTTP error:", response.status, response.statusText);
+				return {
+					success: false,
+					status: response.status,
+					error: response.statusText,
+				};
+			}
+
+			const data = await response.json().catch((err) => err);
+
+			if (data instanceof Error) {
+				console.error("Response parsing error:", data.message);
+				return { isSuccess: false, error: data.message };
+			}
+
+			return { isSuccess: true, recipes: null };
+		},
+		async delete(token, id) {
+			const URL = `${BACKEND}/api/Recetas_Guardadas/Eliminar`;
+			const options = {
+				method: "DELETE",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${token}`,
+				},
+				body: JSON.stringify({
+					id_receta: id,
+				}),
+			};
+
+			const response = await fetch(URL, options).catch((err) => err);
+
+			if (response instanceof Error) {
+				console.error("Network error:", response.message);
+				return { isSuccess: false, error: response.message };
+			}
+
+			if (!response.ok) {
+				console.error("HTTP error:", response.status, response.statusText);
+				return {
+					success: false,
+					status: response.status,
+					error: response.statusText,
+				};
+			}
+
+			const data = await response.json().catch((err) => err);
+
+			if (data instanceof Error) {
+				console.error("Response parsing error:", data.message);
+				return { isSuccess: false, error: data.message };
+			}
+
+			return { isSuccess: true, recipes: null };
 		},
 	},
 	ingredients: {
