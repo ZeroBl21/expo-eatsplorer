@@ -18,7 +18,9 @@ function Card({ item, toggleFavorite }) {
 			<View className="self-center">
 				<Image
 					className="rounded-md h-24 w-24"
-					source={randomImage[(item.id + 1) % 3]}
+					source={
+						item.image !== "" ? item.image : randomImage[(item.id + 1) % 3]
+					}
 					resizeMode="cover"
 				/>
 			</View>
@@ -30,16 +32,16 @@ function Card({ item, toggleFavorite }) {
 						onPress={() => router.push("/(tabs)/recipe")}
 						numberOfLines={2}
 					>
-						{item.title}
+						{item.title ?? "Moro de Guandules"}
 					</Text>
 				</View>
 				<View className="gap-2 flex-row">
 					<Text className="text-xs text-brand">@ArdelisUlloa</Text>
-					<Text className="text-xs">{item.likes} Likes</Text>
+					<Text className="text-xs">{item.likes ?? 0} Likes</Text>
 				</View>
 				<View className="flex-row">
 					<Text className="text-xs flex-1" numberOfLines={4}>
-						{item.description}
+						{item.description ?? "Sin Descripción"}
 					</Text>
 				</View>
 			</View>
@@ -64,6 +66,7 @@ const data = [
 		saved: true,
 		title: "Moro de Guandules",
 		description: "This is the content of card 1",
+		likes: 100,
 	},
 	{
 		id: 2,
@@ -71,6 +74,7 @@ const data = [
 		saved: false,
 		title: "Arroz con Pollo",
 		description: "This is the content of card 2",
+		likes: 100,
 	},
 	{
 		id: 3,
@@ -78,6 +82,7 @@ const data = [
 		saved: false,
 		title: "Carne Asada",
 		description: "This is the content of card 3",
+		likes: 100,
 	},
 	{
 		id: 4,
@@ -85,6 +90,7 @@ const data = [
 		saved: true,
 		title: "Moro de Guandules",
 		description: "This is the content of card 1",
+		likes: 100,
 	},
 	{
 		id: 5,
@@ -92,6 +98,7 @@ const data = [
 		saved: false,
 		title: "Arroz con Pollo",
 		description: "This is the content of card 2",
+		likes: 100,
 	},
 	{
 		id: 6,
@@ -99,6 +106,7 @@ const data = [
 		saved: true,
 		title: "Carne Asada",
 		description: "This is the content of card 3",
+		likes: 100,
 	},
 ];
 

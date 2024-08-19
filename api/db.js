@@ -792,14 +792,14 @@ function formatRecipes(array) {
 
 	return array.map((recipe) => ({
 		id: recipe.id_receta,
-		title: recipe.titulo,
-		description: recipe.descripcion,
-		createdAt: recipe.fecha_creacion,
-		image: recipe.foto_receta,
+		title: recipe.titulo ?? "Moro con Carne",
+		description: recipe.descripcion ?? "Nutritiva llena en grasas",
+		createdAt: recipe.fecha_creacion ?? "",
+		image: isValidURL(recipe.foto_receta) ? recipe.foto_receta : "",
 		ingredients: formatIngredients(recipe.ingredientes), // Assuming no change in ingredients structure
-		instructions: recipe.instrucciones,
-		likes: recipe.likes,
-		servings: recipe.porciones,
+		instructions: recipe.instrucciones ?? [],
+		likes: recipe.likes ?? 100,
+		servings: recipe.porciones ?? 1,
 		userId: recipe.usuario_id,
 	}));
 }
@@ -811,7 +811,7 @@ function formatIngredients(array) {
 
 	return array.map((i) => ({
 		id: i.id_ingrediente,
-		name: i.nombre,
+		name: i.nombre ?? "Desconocido",
 		count: i.cantidad ?? 0,
 	}));
 }
@@ -822,6 +822,15 @@ function formatTags(array) {
 	}
 
 	return array.map((i) => ({ id: i.id_tag, name: i.nombre }));
+}
+
+function isValidURL(url) {
+	try {
+		new URL(url);
+		return true;
+	} catch (error) {
+		return false;
+	}
 }
 
 export default api;
