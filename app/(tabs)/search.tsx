@@ -133,7 +133,7 @@ const Search = () => {
 	useEffect(() => {
 		async function updateOptions() {
 			try {
-				if (filter[0] === 1) {
+				if (filter[0] === 1 || filter[0] === 3) {
 					// Ingrediente
 					const res = await api.ingredients.list(authState?.token);
 					setOptions(res.ingredients);
@@ -173,6 +173,11 @@ const Search = () => {
 			} else if (filter[0] === 2) {
 				// Buscar por tags
 				response = await api.recipes.searchByTags(
+					authState?.token,
+					searchTermArray,
+				);
+			} else if (filter[0] === 3) {
+				response = await api.recipes.searchByWithoutIngredients(
 					authState?.token,
 					searchTermArray,
 				);

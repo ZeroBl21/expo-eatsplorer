@@ -295,7 +295,7 @@ const api = {
 						titulo: recipe.title,
 						descripcion: recipe.description,
 						instrucciones: recipe.instructions,
-						foto_receta: recipe.photo, 
+						foto_receta: recipe.photo,
 						usuario_id: recipe.userId,
 						fecha_creacion: recipe.fecha_creacion,
 						porciones: recipe.porciones,
@@ -315,8 +315,8 @@ const api = {
 			} catch (error) {
 				console.error("Error uploading recipe:", error);
 				return { isSuccess: false };
-				}
-			},
+			}
+		},
 
 		async uploadIngredient(ingredient, token) {
 			try {
@@ -383,43 +383,43 @@ const api = {
 			}
 		},
 		async uploadImage(imageUri, token) {
-      const url = BACKEND + "/api/Imagen/subirimagen";
-    
-      // Extraer el nombre original de la imagen del URI
-      const filename = imageUri.split('/').pop();
-      const match = /\.(\w+)$/.exec(filename);
-      const type = match ? `image/${match[1]}` : `image`;
-    
-      const formData = new FormData();
-      formData.append('image', {
-        uri: imageUri,
-        name: filename,  // Utilizar el nombre original de la imagen
-        type: type,      // Definir el tipo basado en la extensión
-      });
-    
-      try {
-        const response = await fetch(url, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'multipart/form-data',
-            'Authorization': `Bearer ${token}`,
-          },
-          body: formData,
-        });
-    
-        const result = await response.json();
-    
-        if (response.ok) {
-          return { isSuccess: true, url: result.url };
-        } else {
-          console.error('Upload image failed:', result);
-          return { isSuccess: false };
-        }
-      } catch (error) {
-        console.error('Error uploading image:', error);
-        return { isSuccess: false };
-      }
-    },
+			const url = BACKEND + "/api/Imagen/subirimagen";
+
+			// Extraer el nombre original de la imagen del URI
+			const filename = imageUri.split("/").pop();
+			const match = /\.(\w+)$/.exec(filename);
+			const type = match ? `image/${match[1]}` : `image`;
+
+			const formData = new FormData();
+			formData.append("image", {
+				uri: imageUri,
+				name: filename, // Utilizar el nombre original de la imagen
+				type: type, // Definir el tipo basado en la extensión
+			});
+
+			try {
+				const response = await fetch(url, {
+					method: "POST",
+					headers: {
+						"Content-Type": "multipart/form-data",
+						Authorization: `Bearer ${token}`,
+					},
+					body: formData,
+				});
+
+				const result = await response.json();
+
+				if (response.ok) {
+					return { isSuccess: true, url: result.url };
+				} else {
+					console.error("Upload image failed:", result);
+					return { isSuccess: false };
+				}
+			} catch (error) {
+				console.error("Error uploading image:", error);
+				return { isSuccess: false };
+			}
+		},
 		async searchByName(token, query) {
 			const URL = `${BACKEND}/api/Recetas/BuscarPorNombre`;
 			const options = {
@@ -460,6 +460,44 @@ const api = {
 		},
 		async searchByIngredients(token, query) {
 			const URL = `${BACKEND}/api/Recetas/BuscarPorIngrediente`;
+			const options = {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${token}`,
+				},
+				body: JSON.stringify({
+					id_Ingredientes: query,
+				}),
+			};
+
+			const response = await fetch(URL, options).catch((err) => err);
+
+			if (response instanceof Error) {
+				console.error("Network error:", response.message);
+				return { isSuccess: false, error: response.message };
+			}
+
+			if (!response.ok) {
+				console.error("HTTP error:", response.status, response.statusText);
+				return {
+					success: false,
+					status: response.status,
+					error: response.statusText,
+				};
+			}
+
+			const data = await response.json().catch((err) => err);
+
+			if (data instanceof Error) {
+				console.error("Response parsing error:", data.message);
+				return { isSuccess: false, error: data.message };
+			}
+
+			return { isSuccess: true, recipes: formatRecipes(data.recetas) };
+		},
+		async searchByWithoutIngredients(token, query) {
+			const URL = `${BACKEND}/api/Recetas/BuscarSinIngrediente`;
 			const options = {
 				method: "POST",
 				headers: {
@@ -607,142 +645,145 @@ const api = {
 			return { isSuccess: true, tags: formatTags(data) };
 		},
 	},
-  pantry: {
-    async list(token) {
-      const URL = `${BACKEND}/api/Despensa/ListarDespensa`;
-      const options = {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      };
-  
-      try {
-        const response = await fetch(URL, options);
-        const result = await response.json();
-  
-        if (!response.ok || !result.isSuccess) {
-          console.error(
-            `List pantry items failed: ${result.message || "Unknown error"}`
-          );
-          return {
-            isSuccess: false,
-            message: result.message || "No se encontraron registros.",
-          };
-        }
-  
-        return {
-          isSuccess: true,
-          pantryItems: result.despensa.map((item) => ({
-            id_ingrediente: item.id_ingrediente,
-            nombre: item.nombre,
-            cantidad: item.cantidad,
-            fecha_agregado: item.fecha_agregado,
-          })),
-        };
-      } catch (error) {
-        console.error("Error searching pantry items:", error);
-        return { isSuccess: false, message: error.message };
-      }
-    },
-    async addOrUpdateItem(item, token) {
-      const URL = `${BACKEND}/api/Despensa/agregarActualizarDespensa`;
-      const options = {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(item),
-      };
-  
-      try {
-        const response = await fetch(URL, options);
-        const result = await response.json();
-  
-        if (response.ok) {
-          console.log("Response from API:", result); // Debugging line
-          return { isSuccess: true, data: result };
-        } else {
-          console.error("Add or update pantry item failed:", result);
-          return { isSuccess: false, message: result.message };
-        }
-      } catch (error) {
-        console.error("Error adding/updating pantry item:", error);
-        return { isSuccess: false, message: error.message };
-      }
-    },
-    async updateItemQuantity(token, id_ingrediente, cantidad) {
-      if (cantidad === 0) {
-        return await this.deleteItem(token, id_ingrediente);
-      }
-    
-      const URL = `${BACKEND}/api/Despensa/actualizarCantidad`;
-      const options = {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ id_ingrediente, cantidad }),
-      };
-    
-      try {
-        const response = await fetch(URL, options);
-        if (response.ok) {
-          return { isSuccess: true };
-        } else {
-          const result = await response.json();
-          console.error("Update pantry item quantity failed:", result);
-          return { isSuccess: false, message: result.message };
-        }
-      } catch (error) {
-        console.error("Error updating pantry item quantity:", error);
-        return { isSuccess: false, message: error.message };
-      }
-    },    
-    async deleteItem(token, id_ingrediente) {
-      const URL = `${BACKEND}/api/Despensa/eliminarIngrediente`;
-      const options = {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ id_ingrediente }),
-      };
-    
-      try {
-        const response = await fetch(URL, options);
-    
-        if (response.ok) {
-          // Devuelve éxito si la respuesta está vacía (no es JSON)
-          const resultText = await response.text();
-          if (resultText) {
-            try {
-              const result = JSON.parse(resultText);
-              return { isSuccess: true, data: result };
-            } catch (error) {
-              console.warn("Non-JSON response received, assuming success.");
-              return { isSuccess: true };
-            }
-          } else {
-            return { isSuccess: true };
-          }
-        } else {
-          const resultText = await response.text();
-          const result = resultText ? JSON.parse(resultText) : {};
-          console.error("Delete pantry item failed:", result);
-          return { isSuccess: false, message: result.message || 'Failed to delete item.' };
-        }
-      } catch (error) {
-        console.error("Error deleting pantry item:", error);
-        return { isSuccess: false, message: error.message };
-      }
-    }
-  },  
-};  
+	pantry: {
+		async list(token) {
+			const URL = `${BACKEND}/api/Despensa/ListarDespensa`;
+			const options = {
+				method: "GET",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${token}`,
+				},
+			};
+
+			try {
+				const response = await fetch(URL, options);
+				const result = await response.json();
+
+				if (!response.ok || !result.isSuccess) {
+					console.error(
+						`List pantry items failed: ${result.message || "Unknown error"}`,
+					);
+					return {
+						isSuccess: false,
+						message: result.message || "No se encontraron registros.",
+					};
+				}
+
+				return {
+					isSuccess: true,
+					pantryItems: result.despensa.map((item) => ({
+						id_ingrediente: item.id_ingrediente,
+						nombre: item.nombre,
+						cantidad: item.cantidad,
+						fecha_agregado: item.fecha_agregado,
+					})),
+				};
+			} catch (error) {
+				console.error("Error searching pantry items:", error);
+				return { isSuccess: false, message: error.message };
+			}
+		},
+		async addOrUpdateItem(item, token) {
+			const URL = `${BACKEND}/api/Despensa/agregarActualizarDespensa`;
+			const options = {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${token}`,
+				},
+				body: JSON.stringify(item),
+			};
+
+			try {
+				const response = await fetch(URL, options);
+				const result = await response.json();
+
+				if (response.ok) {
+					console.log("Response from API:", result); // Debugging line
+					return { isSuccess: true, data: result };
+				} else {
+					console.error("Add or update pantry item failed:", result);
+					return { isSuccess: false, message: result.message };
+				}
+			} catch (error) {
+				console.error("Error adding/updating pantry item:", error);
+				return { isSuccess: false, message: error.message };
+			}
+		},
+		async updateItemQuantity(token, id_ingrediente, cantidad) {
+			if (cantidad === 0) {
+				return await this.deleteItem(token, id_ingrediente);
+			}
+
+			const URL = `${BACKEND}/api/Despensa/actualizarCantidad`;
+			const options = {
+				method: "PUT",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${token}`,
+				},
+				body: JSON.stringify({ id_ingrediente, cantidad }),
+			};
+
+			try {
+				const response = await fetch(URL, options);
+				if (response.ok) {
+					return { isSuccess: true };
+				} else {
+					const result = await response.json();
+					console.error("Update pantry item quantity failed:", result);
+					return { isSuccess: false, message: result.message };
+				}
+			} catch (error) {
+				console.error("Error updating pantry item quantity:", error);
+				return { isSuccess: false, message: error.message };
+			}
+		},
+		async deleteItem(token, id_ingrediente) {
+			const URL = `${BACKEND}/api/Despensa/eliminarIngrediente`;
+			const options = {
+				method: "DELETE",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${token}`,
+				},
+				body: JSON.stringify({ id_ingrediente }),
+			};
+
+			try {
+				const response = await fetch(URL, options);
+
+				if (response.ok) {
+					// Devuelve éxito si la respuesta está vacía (no es JSON)
+					const resultText = await response.text();
+					if (resultText) {
+						try {
+							const result = JSON.parse(resultText);
+							return { isSuccess: true, data: result };
+						} catch (error) {
+							console.warn("Non-JSON response received, assuming success.");
+							return { isSuccess: true };
+						}
+					} else {
+						return { isSuccess: true };
+					}
+				} else {
+					const resultText = await response.text();
+					const result = resultText ? JSON.parse(resultText) : {};
+					console.error("Delete pantry item failed:", result);
+					return {
+						isSuccess: false,
+						message: result.message || "Failed to delete item.",
+					};
+				}
+			} catch (error) {
+				console.error("Error deleting pantry item:", error);
+				return { isSuccess: false, message: error.message };
+			}
+		},
+	},
+};
 
 function formatRecipes(array) {
 	if (!array?.length) {
