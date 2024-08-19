@@ -658,6 +658,7 @@ const api = {
 					servings: data.data.porciones ?? 1,
 					userId: data.data.usuario_id,
 					username: data.data.usuario_nombre ?? "",
+					saved: data.data.isRecetaGuardada ?? false,
 				},
 			};
 		},
@@ -766,12 +767,13 @@ const api = {
 				};
 			}
 
-			const data = await response.json().catch((err) => err);
+			// console.log(response);
+			// const data = await response.json().catch((err) => err);
 
-			if (data instanceof Error) {
-				console.error("Response parsing error:", data.message);
-				return { isSuccess: false, error: data.message };
-			}
+			// if (data instanceof Error) {
+			// 	console.error("Response parsing error:", data.message);
+			// 	return { isSuccess: false, error: data.message };
+			// }
 
 			return { isSuccess: true, recipes: null };
 		},
@@ -1005,6 +1007,7 @@ function formatRecipes(array) {
 		servings: recipe.porciones ?? 1,
 		userId: recipe.usuario_id,
 		username: recipe.usuario_nombre ?? "",
+		saved: recipe.isRecetaGuardada ?? false,
 	}));
 }
 

@@ -84,6 +84,7 @@ type Recipe = {
 	servings: number;
 	userId: number;
 	username: string;
+	saved: boolean;
 };
 
 type Ingredient = {
@@ -149,6 +150,37 @@ export default function Recipe() {
 
 	const hasMissingIngredients = recipe?.ingredients.some(isIngredientMissing);
 
+	async function toggleFavorite() {
+		if (!recipe) return;
+
+		const updatedRecipe = { ...recipe, saved: !recipe.saved };
+		setRecipe(updatedRecipe);
+
+		try {
+			if (updatedRecipe.saved) {
+				const response = await api.savedRecipes.add(
+					authState?.token,
+					recipe.id,
+				);
+				if (!response.isSuccess) {
+					throw new Error(response.error || "Error al guardar la receta.");
+				}
+			} else {
+				const response = await api.savedRecipes.delete(
+					authState?.token,
+					recipe.id,
+				);
+				if (!response.isSuccess) {
+					throw new Error(response.error || "Error al eliminar la receta.");
+				}
+			}
+		} catch (error) {
+			console.error(error);
+			// Revertir el cambio si hay un error
+			setRecipe(recipe);
+		}
+	}
+
 	return (
 		<SafeAreaView className="flex-1 bg-offwhite">
 			<ScrollView>
@@ -179,11 +211,15 @@ export default function Recipe() {
 							</Text>
 						</View>
 					</View>
-					<TouchableOpacity activeOpacity={0.7} onPress={() => {}} className="">
+					<TouchableOpacity
+						activeOpacity={0.7}
+						onPress={() => toggleFavorite()}
+						className=""
+					>
 						<TabBarIcon
-							className="p-2 "
+							className="p-2 bg-secondary-dark rounded-full"
 							size={30}
-							name={"bookmark"}
+							name={recipe?.saved ? "bookmark" : "bookmark-outline"}
 							color={"red"}
 						/>
 					</TouchableOpacity>
@@ -195,7 +231,7 @@ export default function Recipe() {
 							className=""
 						>
 							<TabBarIcon
-								className="p-2 "
+								className="p-2 bg-secondary-dark rounded-full"
 								size={30}
 								name={"fast-food"}
 								color={"green"}

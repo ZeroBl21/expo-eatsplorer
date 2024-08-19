@@ -214,15 +214,40 @@ const Search = () => {
 		}
 	};
 
-	function toggleFavorite(id: number) {
-		const newData = items.map((item) => {
+	async function toggleFavorite(id: number) {
+		const updatedItems = items.map((item) => {
 			if (item.id === id) {
 				return { ...item, saved: !item.saved };
 			}
 			return item;
 		});
 
-		setItems(newData);
+		setItems(updatedItems);
+
+		const targetItem = updatedItems.find((item) => item.id === id);
+
+		try {
+			if (targetItem?.saved) {
+				const response = await api.savedRecipes.add(authState?.token, id);
+				if (!response.isSuccess) {
+					throw new Error(response.error || "Error al guardar la receta.");
+				}
+			} else {
+				const response = await api.savedRecipes.delete(authState?.token, id);
+				if (!response.isSuccess) {
+					throw new Error(response.error || "Error al eliminar la receta.");
+				}
+			}
+		} catch (error) {
+			console.error(error);
+			const revertedItems = updatedItems.map((item) => {
+				if (item.id === id) {
+					return { ...item, saved: !item.saved };
+				}
+				return item;
+			});
+			setItems(revertedItems);
+		}
 	}
 
 	return (
