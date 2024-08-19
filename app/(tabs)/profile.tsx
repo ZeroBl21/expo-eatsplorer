@@ -114,7 +114,7 @@ export default function Profile() {
 						title="Recetas"
 						icon={icons.chef}
 						containerStyles="border-0"
-						handlePress={() => router.replace("/recipe")}
+						handlePress={() => router.replace("/(tabs)/search")}
 					/>
 					<Button
 						title="Recientes"
