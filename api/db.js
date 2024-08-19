@@ -682,9 +682,14 @@ const api = {
 			}
 
 			if (!response.ok) {
+				if (response.status === 404)
+					return {
+						isSuccess: true,
+						recipes: [],
+					};
 				console.error("HTTP error:", response.status, response.statusText);
 				return {
-					success: false,
+					isSuccess: false,
 					status: response.status,
 					error: response.statusText,
 				};
@@ -696,9 +701,9 @@ const api = {
 				console.error("Response parsing error:", data.message);
 				return { isSuccess: false, error: data.message };
 			}
-			console.log(data);
+			console.log("A ver....", data);
 
-			return { isSuccess: true, recipes: formatRecipes(data.data) };
+			return { isSuccess: true, recipes: formatRecipes(data.recetasGuardadas) };
 		},
 		async add(token, id) {
 			const URL = `${BACKEND}/api/Recetas_Guardadas/Ingresar`;
@@ -1006,7 +1011,11 @@ function formatRecipes(array) {
 		likes: recipe.likes ?? 100,
 		servings: recipe.porciones ?? 1,
 		userId: recipe.usuario_id,
-		username: recipe.usuario_nombre ?? "",
+		username: recipe.usuario_nombre
+			? recipe.usuario_nombre
+			: recipe.usuarioNombre
+				? recipe.usuarioNombre
+				: "",
 		saved: recipe.isRecetaGuardada ?? false,
 	}));
 }

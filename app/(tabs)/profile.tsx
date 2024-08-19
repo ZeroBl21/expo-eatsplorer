@@ -117,9 +117,10 @@ export default function Profile() {
 						handlePress={() => router.replace("/(tabs)/search")}
 					/>
 					<Button
-						title="Recientes"
+						title="Guardadas"
 						icon={icons.recent}
 						containerStyles="border-0"
+						handlePress={() => router.replace("/(tabs)/favorites")}
 					/>
 				</View>
 				<View className="bg-offwhite h-full p-4 py-6 space-y-2">
