@@ -456,7 +456,7 @@ const api = {
 				return { isSuccess: false, error: data.message };
 			}
 
-			return { isSuccess: true, recipes: formatRecipes(data.recetas) };
+			return { isSuccess: true, recipes: formatRecipes(data.data) };
 		},
 		async searchByIngredients(token, query) {
 			const URL = `${BACKEND}/api/Recetas/BuscarPorIngrediente`;
@@ -571,6 +571,56 @@ const api = {
 			}
 
 			return { isSuccess: true, recipes: formatRecipes(data.recetas) };
+		},
+		async searchByID(token, id) {
+			const URL = `${BACKEND}/api/Recetas/BuscarPorId/${id ?? 1}`;
+			const options = {
+				method: "GET",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${token}`,
+				},
+			};
+
+			const response = await fetch(URL, options).catch((err) => err);
+
+			if (response instanceof Error) {
+				console.error("Network error:", response.message);
+				return { isSuccess: false, error: response.message };
+			}
+
+			if (!response.ok) {
+				console.error("HTTP error:", response.status, response.statusText);
+				return {
+					success: false,
+					status: response.status,
+					error: response.statusText,
+				};
+			}
+
+			const data = await response.json().catch((err) => err);
+
+			if (data instanceof Error) {
+				console.error("Response parsing error:", data.message);
+				return { isSuccess: false, error: data.message };
+			}
+
+			return {
+				isSuccess: true,
+				recipe: {
+					id: data.data.id_receta,
+					title: data.data.titulo ?? "Moro con Carne",
+					description: data.data.descripcion ?? "Nutritiva llena en grasas",
+					createdAt: data.data.fecha_creacion ?? "",
+					image: isValidURL(data.data.foto_receta) ? data.data.foto_receta : "",
+					ingredients: formatIngredients(data?.data?.ingredientes), // Assuming no change in ingredients structure
+					instructions: data.data.instrucciones ?? [],
+					likes: data.data.likes ?? 100,
+					servings: data.data.porciones ?? 1,
+					userId: data.data.usuario_id,
+					username: data.data.usuario_nombre ?? "",
+				},
+			};
 		},
 	},
 	ingredients: {
@@ -801,10 +851,11 @@ function formatRecipes(array) {
 		likes: recipe.likes ?? 100,
 		servings: recipe.porciones ?? 1,
 		userId: recipe.usuario_id,
+		username: recipe.usuario_nombre ?? "",
 	}));
 }
 
-function formatIngredients(array) {
+export function formatIngredients(array) {
 	if (!array?.length) {
 		return [];
 	}
@@ -812,7 +863,7 @@ function formatIngredients(array) {
 	return array.map((i) => ({
 		id: i.id_ingrediente,
 		name: i.nombre ?? "Desconocido",
-		count: i.cantidad ?? 0,
+		quantity: i.cantidad ?? 0,
 	}));
 }
 
