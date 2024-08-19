@@ -219,7 +219,212 @@ const api = {
 			}
 		},
 
-		// Otras funciones para búsqueda de recetas...
+		async searchByName(token, query) {
+			const URL = `${BACKEND}/api/Recetas/BuscarPorNombre`;
+			const options = {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${token}`,
+				},
+				body: JSON.stringify({
+					titulo: query,
+				}),
+			};
+
+			const response = await fetch(URL, options).catch((err) => err);
+
+			if (response instanceof Error) {
+				console.error("Network error:", response.message);
+				return { isSuccess: false, error: response.message };
+			}
+
+			if (!response.ok) {
+				console.error("HTTP error:", response.status, response.statusText);
+				return {
+					success: false,
+					status: response.status,
+					error: response.statusText,
+				};
+			}
+
+			const data = await response.json().catch((err) => err);
+
+			if (data instanceof Error) {
+				console.error("Response parsing error:", data.message);
+				return { isSuccess: false, error: data.message };
+			}
+
+			return { isSuccess: true, recipes: formatRecipes(data.data) };
+		},
+
+		async searchByIngredients(token, query) {
+			const URL = `${BACKEND}/api/Recetas/BuscarPorIngrediente`;
+			const options = {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${token}`,
+				},
+				body: JSON.stringify({
+					id_Ingredientes: query,
+				}),
+			};
+
+			const response = await fetch(URL, options).catch((err) => err);
+
+			if (response instanceof Error) {
+				console.error("Network error:", response.message);
+				return { isSuccess: false, error: response.message };
+			}
+
+			if (!response.ok) {
+				console.error("HTTP error:", response.status, response.statusText);
+				return {
+					success: false,
+					status: response.status,
+					error: response.statusText,
+				};
+			}
+
+			const data = await response.json().catch((err) => err);
+
+			if (data instanceof Error) {
+				console.error("Response parsing error:", data.message);
+				return { isSuccess: false, error: data.message };
+			}
+
+			return { isSuccess: true, recipes: formatRecipes(data.recetas) };
+		},
+
+		async searchByWithoutIngredients(token, query) {
+			const URL = `${BACKEND}/api/Recetas/BuscarSinIngrediente`;
+			const options = {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${token}`,
+				},
+				body: JSON.stringify({
+					id_Ingredientes: query,
+				}),
+			};
+
+			const response = await fetch(URL, options).catch((err) => err);
+
+			if (response instanceof Error) {
+				console.error("Network error:", response.message);
+				return { isSuccess: false, error: response.message };
+			}
+
+			if (!response.ok) {
+				console.error("HTTP error:", response.status, response.statusText);
+				return {
+					success: false,
+					status: response.status,
+					error: response.statusText,
+				};
+			}
+
+			const data = await response.json().catch((err) => err);
+
+			if (data instanceof Error) {
+				console.error("Response parsing error:", data.message);
+				return { isSuccess: false, error: data.message };
+			}
+
+			return { isSuccess: true, recipes: formatRecipes(data.recetas) };
+		},
+
+		async searchByTags(token, query) {
+			const URL = `${BACKEND}/api/Recetas/BuscarPorTag`;
+			const options = {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${token}`,
+				},
+				body: JSON.stringify({
+					id_Tags: query,
+				}),
+			};
+
+			const response = await fetch(URL, options).catch((err) => err);
+
+			if (response instanceof Error) {
+				console.error("Network error:", response.message);
+				return { isSuccess: false, error: response.message };
+			}
+
+			if (!response.ok) {
+				console.error("HTTP error:", response.status, response.statusText);
+				return {
+					success: false,
+					status: response.status,
+					error: response.statusText,
+				};
+			}
+
+			const data = await response.json().catch((err) => err);
+
+			if (data instanceof Error) {
+				console.error("Response parsing error:", data.message);
+				return { isSuccess: false, error: data.message };
+			}
+
+			return { isSuccess: true, recipes: formatRecipes(data.recetas) };
+		},
+
+		async searchByID(token, id) {
+			const URL = `${BACKEND}/api/Recetas/BuscarPorId/${id ?? 1}`;
+			const options = {
+				method: "GET",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${token}`,
+				},
+			};
+
+			const response = await fetch(URL, options).catch((err) => err);
+
+			if (response instanceof Error) {
+				console.error("Network error:", response.message);
+				return { isSuccess: false, error: response.message };
+			}
+
+			if (!response.ok) {
+				console.error("HTTP error:", response.status, response.statusText);
+				return {
+					success: false,
+					status: response.status,
+					error: response.statusText,
+				};
+			}
+
+			const data = await response.json().catch((err) => err);
+
+			if (data instanceof Error) {
+				console.error("Response parsing error:", data.message);
+				return { isSuccess: false, error: data.message };
+			}
+
+			return {
+				isSuccess: true,
+				recipe: {
+					id: data.data.id_receta,
+					title: data.data.titulo ?? "Moro con Carne",
+					description: data.data.descripcion ?? "Nutritiva llena en grasas",
+					createdAt: data.data.fecha_creacion ?? "",
+					image: isValidURL(data.data.foto_receta) ? data.data.foto_receta : "",
+					ingredients: formatIngredients(data?.data?.ingredientes), // Assuming no change in ingredients structure
+					instructions: data.data.instrucciones ?? [],
+					likes: data.data.likes ?? 100,
+					servings: data.data.porciones ?? 1,
+					userId: data.data.usuario_id,
+					username: data.data.usuario_nombre ?? "",
+				},
+			};
+		},
 	},
 	ingredients: {
 		async list(token) {
@@ -356,6 +561,77 @@ const api = {
 				}
 			} catch (error) {
 				console.error("Error adding/updating pantry item:", error);
+				return { isSuccess: false, message: error.message };
+			}
+		},
+		async updateItemQuantity(token, id_ingrediente, cantidad) {
+			if (cantidad === 0) {
+				return await this.deleteItem(token, id_ingrediente);
+			}
+
+			const URL = `${BACKEND}/api/Despensa/actualizarCantidad`;
+			const options = {
+				method: "PUT",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${token}`,
+				},
+				body: JSON.stringify({ id_ingrediente, cantidad }),
+			};
+
+			try {
+				const response = await fetch(URL, options);
+				if (response.ok) {
+					return { isSuccess: true };
+				} else {
+					const result = await response.json();
+					console.error("Update pantry item quantity failed:", result);
+					return { isSuccess: false, message: result.message };
+				}
+			} catch (error) {
+				console.error("Error updating pantry item quantity:", error);
+				return { isSuccess: false, message: error.message };
+			}
+		},
+		async deleteItem(token, id_ingrediente) {
+			const URL = `${BACKEND}/api/Despensa/eliminarIngrediente`;
+			const options = {
+				method: "DELETE",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${token}`,
+				},
+				body: JSON.stringify({ id_ingrediente }),
+			};
+
+			try {
+				const response = await fetch(URL, options);
+
+				if (response.ok) {
+					// Devuelve éxito si la respuesta está vacía (no es JSON)
+					const resultText = await response.text();
+					if (resultText) {
+						try {
+							const result = JSON.parse(resultText);
+							return { isSuccess: true, data: result };
+						} catch (error) {
+							console.warn("Non-JSON response received, assuming success.");
+							return { isSuccess: true };
+						}
+					} else {
+						return { isSuccess: true };
+					}
+				} else {
+					const resultText = await response.text();
+					const result = resultText ? JSON.parse(resultText) : {};
+					console.error("Delete pantry item failed:", result);
+					return {
+						isSuccess: false,
+						message: result.message || "Failed to delete item.",
+					};
+				}
+			} catch (error) {
+				console.error("Error deleting pantry item:", error);
 				return { isSuccess: false, message: error.message };
 			}
 		},
