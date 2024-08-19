@@ -19,7 +19,9 @@ function Card({ item, toggleFavorite }) {
 				<Image
 					className="rounded-md h-24 w-24"
 					source={
-						item.image !== "" ? item.image : randomImage[(item.id + 1) % 3]
+						item.image !== ""
+							? { uri: item.image }
+							: randomImage[(item.id + 1) % 3]
 					}
 					resizeMode="cover"
 				/>
