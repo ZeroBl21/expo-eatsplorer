@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { SafeAreaView, ScrollView, View, Text, Image } from "react-native";
+import { Image, SafeAreaView, ScrollView, Text, View } from "react-native";
 
 import FormField from "@/components/FormField";
 import { images } from "@/constants";
 
-import { TabBarIcon } from "@/components/navigation/TabBarIcon";
-import { router } from "expo-router";
-import { useAuth } from "@/context/auth-context";
-import MultiSelect from "@/components/MultiSelect";
 import api from "@/api/db";
+import MultiSelect from "@/components/MultiSelect";
+import { TabBarIcon } from "@/components/navigation/TabBarIcon";
+import { useAuth } from "@/context/auth-context";
+import { router } from "expo-router";
 
 const randomImage = [images.moro, images.meat, images.rice];
 
