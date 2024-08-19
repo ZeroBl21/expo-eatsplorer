@@ -1,5 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { Image, SafeAreaView, ScrollView, Text, View } from "react-native";
+import {
+	Image,
+	SafeAreaView,
+	ScrollView,
+	Text,
+	TouchableOpacity,
+	View,
+} from "react-native";
 
 import FormField from "@/components/FormField";
 import { images } from "@/constants";
@@ -19,7 +26,7 @@ function Card({ item, toggleFavorite }) {
 				<Image
 					className="rounded-md h-24 w-24"
 					source={
-						item.image !== ""
+						item.image && typeof item.image === "string"
 							? { uri: item.image }
 							: randomImage[(item.id + 1) % 3]
 					}
@@ -31,14 +38,16 @@ function Card({ item, toggleFavorite }) {
 				<View className="flex-row">
 					<Text
 						className="text-sm flex-[60%] font-inter-medium"
-						onPress={() => router.push("/(tabs)/recipe")}
+						onPress={() => router.push(`/search/${item.id}`)}
 						numberOfLines={2}
 					>
 						{item.title ?? "Moro de Guandules"}
 					</Text>
 				</View>
 				<View className="gap-2 flex-row">
-					<Text className="text-xs text-brand">@ArdelisUlloa</Text>
+					<Text className="text-xs text-brand">
+						@{item.username ?? "Loading..."}
+					</Text>
 					<Text className="text-xs">{item.likes ?? 0} Likes</Text>
 				</View>
 				<View className="flex-row">
@@ -48,15 +57,18 @@ function Card({ item, toggleFavorite }) {
 				</View>
 			</View>
 
-			<View className="ml-auto">
+			<TouchableOpacity
+				className="ml-auto"
+				activeOpacity={0.7}
+				onPress={() => toggleFavorite(item.id)}
+			>
 				<TabBarIcon
 					className="p-1"
 					size={30}
-					name={item?.saved ? "heart" : "heart-outline"}
+					name={item?.saved ? "bookmark" : "bookmark-outline"}
 					color={"red"}
-					onPress={() => toggleFavorite(item.id)}
 				/>
-			</View>
+			</TouchableOpacity>
 		</View>
 	);
 }
@@ -175,7 +187,6 @@ const Search = () => {
 				response = await api.recipes.searchByName(authState?.token, searchTerm);
 			} else if (filter[0] === 1) {
 				// Buscar por ingrediente
-				console.log(searchTermArray);
 				response = await api.recipes.searchByIngredients(
 					authState?.token,
 					searchTermArray,
@@ -242,14 +253,13 @@ const Search = () => {
 							/>
 						</View>
 					)}
-					<View className="h-12 bg-secondary-dark rounded-md flex ml-1 p-2">
-						<TabBarIcon
-							size={30}
-							name={"search"}
-							color={"white"}
-							onPress={handleSearch}
-						/>
-					</View>
+					<TouchableOpacity
+						className="h-12 bg-secondary-dark rounded-md flex ml-1 p-2"
+						activeOpacity={0.7}
+						onPress={handleSearch}
+					>
+						<TabBarIcon size={30} name={"search"} color={"white"} />
+					</TouchableOpacity>
 				</View>
 				<MultiSelect
 					items={filters}
